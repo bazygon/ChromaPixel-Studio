@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChromaPixel Studio — Arcydzieło Web Design</title>
+  <meta name="description" content="ChromaPixel Studio: projektujemy szybkie, piękne i skuteczne strony WWW. Landing pages, sklepy, optymalizacja i SEO. Darmowa konsultacja." />
+  <meta name="theme-color" content="#0a0a0f" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- LOGO (Dropbox PNG) -->
+  <link rel="preload" as="image" href="https://www.dropbox.com/scl/fi/xwswpyan3eg6noazye12l/ChromaPixel-Studio.png?rlkey=eod4aiei6lsdzithd05pjee2i&st=nlafvzab&dl=1">
+  <link rel="icon" type="image/png" href="https://www.dropbox.com/scl/fi/xwswpyan3eg6noazye12l/ChromaPixel-Studio.png?rlkey=eod4aiei6lsdzithd05pjee2i&st=nlafvzab&dl=1">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ChromaPixel Studio — Arcydzieło Web Design">
+  <meta property="og:description" content="Projektujemy szybkie, piękne i skuteczne strony WWW. Darmowa konsultacja.">
+  <meta property="og:image" content="https://www.dropbox.com/scl/fi/xwswpyan3eg6noazye12l/ChromaPixel-Studio.png?rlkey=eod4aiei6lsdzithd05pjee2i&st=nlafvzab&dl=1">
+
+  <style>
+    :root{
+      --primary: linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);
+      --secondary: linear-gradient(135deg,#4facfe 0%,#00f2fe 50%,#667eea 100%);
+      --accent: linear-gradient(135deg,#f093fb 0%,#f5576c 50%,#4facfe 100%);
+      --neon: linear-gradient(135deg,#ff006e 0%,#fb5607 50%,#ffbe0b 100%);
+      --dark:#0a0a0f; --dark-alt:#12121a; --dark-card:rgba(18,18,26,.8);
+      --text:#fff; --text-muted:#a0a3bd; --glass:rgba(255,255,255,.05); --glass-border:rgba(255,255,255,.1);
+      --shadow-primary:0 20px 60px rgba(102,126,234,.3);
+      --shadow-secondary:0 20px 60px rgba(79,172,254,.3)
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;overflow-x:hidden}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--dark);color:var(--text);line-height:1.7;overflow-x:hidden;scroll-padding-top:84px}
+    a{color:inherit}
+    .sr-only{position:absolute !important;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+    .skip-link{position:absolute;left:-999px;top:8px;background:#000;color:#fff;padding:.5rem 1rem;border-radius:8px}
+    .skip-link:focus{left:8px;z-index:10000}
+
+    .bg-masterpiece{position:fixed;inset:0;z-index:-2;background:
+      radial-gradient(circle at 20% 80%,rgba(120,119,198,.3) 0%,transparent 50%),
+      radial-gradient(circle at 80% 20%,rgba(255,119,198,.2) 0%,transparent 50%),
+      radial-gradient(circle at 40% 40%,rgba(120,219,255,.15) 0%,transparent 50%),
+      linear-gradient(135deg,#0a0a0f 0%,#12121a 100%)}
+    .bg-particles{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+    .particle{position:absolute;width:2px;height:2px;background:var(--primary);border-radius:50%;opacity:.28;animation:float 16s linear infinite}
+    @keyframes float{
+      0%{transform:translateY(100vh) rotate(0deg);opacity:0}
+      10%,90%{opacity:.28}
+      100%{transform:translateY(-120px) rotate(360deg);opacity:0}
+    }
+
+    .loader{position:fixed;inset:0;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s ease,visibility .6s ease,transform .6s ease}
+    .loader.hidden{opacity:0;visibility:hidden;transform:scale(1.02)}
+    .loader .logo{font-size:2.2rem;font-weight:900;background:var(--neon);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1.5rem;animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+    .progress{width:280px;height:4px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
+    .progress::after{content:"";display:block;height:100%;width:0;background:var(--neon);animation:bar 1.6s ease forwards}
+    @keyframes bar{to{width:100%}}
+    .load-note{margin-top:10px;font-family:"JetBrains Mono",monospace;font-size:.9rem;color:var(--text-muted)}
+
+    nav{position:fixed;inset:0 0 auto 0;padding:1.25rem 2rem;background:rgba(10,10,15,.85);backdrop-filter:blur(24px) saturate(160%);border-bottom:1px solid var(--glass-border);z-index:1000;transition:all .3s ease}
+    nav.scrolled{padding:.75rem 2rem;background:rgba(10,10,15,.95);box-shadow:var(--shadow-primary)}
+    .nav-wrap{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    .brand{display:flex;align-items:center;gap:.75rem;text-decoration:none}
+    .brand img{width:42px;height:42px;object-fit:contain;filter:drop-shadow(0 0 18px rgba(102,126,234,.5));transition:transform .2s ease}
+    .brand:hover img{transform:scale(1.06) rotate(3deg)}
+    .brand .txt{font-weight:800;font-size:1.4rem;background:var(--primary);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .links{display:flex;gap:2rem;align-items:center;list-style:none}
+    .links a{position:relative;text-decoration:none;font-weight:600;font-size:.98rem;color:#fff;padding:.4rem 0}
+    .links a::before{content:"";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);height:2px;width:0;background:var(--neon);transition:width .25s ease}
+    .links a:hover::before{width:100%}
+    .cta-mini{padding:.6rem 1rem;border:1px solid var(--glass-border);border-radius:999px;background:var(--glass)}
+    .menu-btn{display:none}
+
+    .hero{min-height:100dvh;display:grid;place-items:center;position:relative;overflow:hidden;padding:8rem 1.5rem 4rem}
+    .hero .content{text-align:center;max-width:960px;margin-inline:auto}
+    .title{font-size:clamp(3rem,8vw,6.5rem);font-weight:900;line-height:.9;margin-bottom:1rem}
+    .title .word{display:inline-block;background:var(--neon);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;transform:translateY(40px);opacity:0;animation:reveal .9s ease .2s forwards}
+    .title .word:nth-child(2){animation-delay:.35s}
+    @keyframes reveal{to{transform:translateY(0);opacity:1}}
+    .subtitle{font-size:clamp(1.05rem,2.5vw,1.5rem);color:var(--text-muted);max-width:700px;margin:0 auto 2rem;opacity:0;animation:fadeUp .8s ease .6s forwards}
+    @keyframes fadeUp{to{opacity:1;transform:none}}
+    .cta-row{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;opacity:0;animation:fadeUp .8s ease .85s forwards}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:1rem 1.6rem;border-radius:999px;text-decoration:none;font-weight:700;font-size:1rem;transition:transform .25s ease,box-shadow .25s ease}
+    .btn-primary{background:var(--neon);box-shadow:var(--shadow-primary)}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 24px 48px rgba(255,0,110,.35)}
+    .btn-ghost{background:var(--glass);border:1px solid var(--glass-border)}
+    .btn-ghost:hover{transform:translateY(-2px);box-shadow:var(--shadow-secondary)}
+    .floating-3d{position:absolute;pointer-events:none;opacity:.12}
+    .floating-3d.box{top:20%;left:10%;width:120px;height:120px;background:var(--primary);border-radius:28px;animation:f3d1 8s ease-in-out infinite}
+    .floating-3d.ball{top:62%;right:10%;width:86px;height:86px;background:var(--secondary);border-radius:50%;animation:f3d2 10s ease-in-out infinite}
+    .floating-3d.tile{bottom:18%;left:16%;width:100px;height:100px;background:var(--accent);border-radius:20px;animation:f3d3 12s ease-in-out infinite}
+    @keyframes f3d1{50%{transform:translateY(-28px) rotateX(180deg) rotateY(180deg)}}
+    @keyframes f3d2{50%{transform:translateY(-22px) rotateZ(180deg) scale(1.08)}}
+    @keyframes f3d3{50%{transform:translateY(-18px) rotateX(45deg) rotateZ(45deg)}}
+
+    section{padding:6rem 1.5rem}
+    .container{max-width:1200px;margin:0 auto}
+    .section-h{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;margin-bottom:1rem;background:var(--secondary);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-align:center}
+    .section-p{max-width:640px;margin:0.5rem auto 2.5rem;color:var(--text-muted);text-align:center;font-size:1.1rem}
+
+    .services{position:relative}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.6rem;margin-top:1rem}
+    .card{background:var(--dark-card);backdrop-filter:blur(24px);border:1px solid var(--glass-border);border-radius:22px;padding:2rem;transition:transform .25s ease,box-shadow .25s ease,background .25s ease;position:relative;overflow:hidden}
+    .card:hover{transform:translateY(-10px);box-shadow:0 30px 80px rgba(0,0,0,.3)}
+    .card::before{content:"";position:absolute;left:0;top:0;height:4px;width:100%;background:var(--neon);transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
+    .card:hover::before{transform:scaleX(1)}
+    .icon{width:72px;height:72px;border-radius:18px;background:var(--accent);display:grid;place-items:center;font-size:1.7rem;margin-bottom:1rem;position:relative}
+    .card h3{font-size:1.45rem;margin-bottom:.5rem}
+    .card p{color:var(--text-muted)}
+
+    .about{background:var(--dark-alt)}
+    .about-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:3rem;align-items:center}
+    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1.5rem}
+    .stat{background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:1.2rem;text-align:center}
+    .stat .num{font-size:2rem;font-weight:900;background:var(--neon);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .visual{display:grid;place-items:center}
+    .visual .frame{width:320px;height:320px;background:var(--primary);border-radius:28px;position:relative;overflow:hidden;animation:spin 20s linear infinite}
+    .visual .frame::before{content:"";position:absolute;inset:50px;background:var(--secondary);border-radius:20px;animation:spinR 16s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}} @keyframes spinR{to{transform:rotate(-360deg)}}
+
+    .contact .form{background:var(--dark-card);border:1px solid var(--glass-border);border-radius:22px;padding:2rem;margin-top:1rem}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .field{display:flex;flex-direction:column;gap:.5rem}
+    .input,.textarea{width:100%;padding:1rem;background:rgba(255,255,255,.04);border:1px solid var(--glass-border);border-radius:14px;color:#fff;font:inherit;transition:border-color .2s ease,transform .2s ease}
+    .input:focus,.textarea:focus{outline:none;border-color:rgba(255,0,110,.45);transform:translateY(-2px);box-shadow:0 0 24px rgba(255,0,110,.12)}
+    .textarea{min-height:140px;resize:vertical}
+    .btn-submit{margin-top:.5rem;width:100%;padding:1rem;border:none;border-radius:14px;font-weight:800;cursor:pointer;background:var(--neon);transition:transform .2s ease,box-shadow .2s ease}
+    .btn-submit:hover{transform:translateY(-2px);box-shadow:0 24px 48px rgba(255,0,110,.35)}
+
+    footer{background:var(--dark-alt);border-top:1px solid var(--glass-border);padding:3rem 1.5rem;text-align:center}
+    .foot-wrap{max-width:1200px;margin:0 auto}
+    .foot-logo{font-weight:900;font-size:1.6rem;background:var(--neon);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+    .social{display:flex;justify-content:center;gap:1rem;margin:1.2rem 0}
+    .social a{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--glass);border:1px solid var(--glass-border);text-decoration:none}
+    .social a:hover{background:var(--neon);box-shadow:var(--shadow-primary);transform:translateY(-2px)}
+
+    .reveal{opacity:0;transform:translateY(36px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+    .reveal.active{opacity:1;transform:none}
+
+    :focus-visible{outline:2px dashed #a8b5ff;outline-offset:2px}
+
+    @media (max-width: 900px){
+      .about-wrap{grid-template-columns:1fr}
+      .row{grid-template-columns:1fr}
+      .links{display:none}
+      .menu-btn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass)}
+      .links.open{display:flex;position:absolute;top:70px;right:16px;flex-direction:column;background:rgba(10,10,15,.96);border:1px solid var(--glass-border);border-radius:14px;padding:12px 16px}
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none !important;transition:none !important;scroll-behavior:auto}
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Pomiń nawigację</a>
+
+  <div class="bg-masterpiece" aria-hidden="true"></div>
+  <div id="particles" class="bg-particles" aria-hidden="true"></div>
+
+  <div id="loader" class="loader" role="alert" aria-live="polite">
+    <div class="logo">ChromaPixel Studio</div>
+    <div class="progress" aria-hidden="true"></div>
+    <div class="load-note">Loading experience…</div>
+  </div>
+
+  <nav id="nav">
+    <div class="nav-wrap">
+      <a class="brand" href="#home" aria-label="ChromaPixel Studio — strona główna">
+        <img
+          src="https://www.dropbox.com/scl/fi/xwswpyan3eg6noazye12l/ChromaPixel-Studio.png?rlkey=eod4aiei6lsdzithd05pjee2i&st=nlafvzab&dl=1"
+          alt="Logo ChromaPixel Studio"
+          width="42" height="42" loading="eager" decoding="async">
+        <span class="txt">ChromaPixel Studio</span>
+      </a>
+      <button class="menu-btn" id="menuBtn" aria-label="Otwórz menu">☰</button>
+      <ul class="links" id="links">
+        <li><a href="#uslugi">Usługi</a></li>
+        <li><a href="#onas">O nas</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+        <li><a class="cta-mini" href="#kontakt">Bezpłatna wycena</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main id="main">
+    <section id="home" class="hero">
+      <div class="content">
+        <h1 class="title">
+          <span class="word">ChromaPixel</span> <span class="word">Studio</span>
+        </h1>
+        <p class="subtitle">
+          Projektujemy strony WWW, które łączą <strong>design klasy premium</strong> z
+          <strong>wynikami</strong>. Performance, SEO i konwersja — od startu.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#kontakt">Porozmawiajmy</a>
+          <a class="btn btn-ghost" href="#uslugi">Zobacz ofertę</a>
+        </div>
+      </div>
+      <div class="floating-3d box" aria-hidden="true"></div>
+      <div class="floating-3d ball" aria-hidden="true"></div>
+      <div class="floating-3d tile" aria-hidden="true"></div>
+    </section>
+
+    <section id="uslugi" class="services">
+      <div class="container">
+        <h2 class="section-h reveal">Usługi</h2>
+        <p class="section-p reveal">Od idei po wdrożenie — szybkie i dopracowane projekty.</p>
+        <div class="grid">
+          <article class="card reveal">
+            <div class="icon">💻</div>
+            <h3>Strony WWW</h3>
+            <p>Nowoczesne, responsywne, zoptymalizowane pod Core Web Vitals. HTML/CSS/JS lub Next/React — zależnie od potrzeb.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">🛒</div>
+            <h3>Sklepy i płatności</h3>
+            <p>Sklepy e-commerce, integracje płatności i automatyzacje zamówień, gotowe do skalowania.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">🚀</div>
+            <h3>Landing pages</h3>
+            <p>Strony kampanijne z naciskiem na szybkość, UX i wyższą konwersję leadów.</p>
+          </article>
+          <article class="card reveal">
+            <div class="icon">🔎</div>
+            <h3>SEO + optymalizacja</h3>
+            <p>Audyt techniczny, poprawa wydajności, schemy danych, copy on-page i wdrożenia SEO.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="onas" class="about">
+      <div class="container about-wrap">
+        <div>
+          <h2 class="section-h" style="-webkit-text-fill-color:transparent;background:var(--accent)">O nas</h2>
+          <p>Jesteśmy zespołem, który łączy estetykę z inżynierią. Pracujemy zwinnie, dowozimy na czas i transparentnie komunikujemy postępy.</p>
+          <ul style="margin:1rem 0 0 1.1rem;line-height:1.9;color:var(--text-muted)">
+            <li>Projekt → makieta → development → wdrożenie</li>
+            <li>Performance-first: Lighthouse, CWV, dostępność</li>
+            <li>Stała opieka powdrożeniowa i rozwój</li>
+          </ul>
+          <div class="stats">
+            <div class="stat"><div class="num">100+</div><div>komponentów UI</div></div>
+            <div class="stat"><div class="num">~1.2s</div><div>Largest Contentful Paint*</div></div>
+            <div class="stat"><div class="num">AA</div><div>dostępność (WCAG)</div></div>
+            <div class="stat"><div class="num">SEO↑</div><div>gotowe pod indeksację</div></div>
+          </div>
+          <p class="section-p" style="margin-top:1rem">*Wynik zależny od hostingu, treści i analityki.</p>
+        </div>
+        <div class="visual">
+          <div class="frame" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="kontakt" class="contact">
+      <div class="container">
+        <h2 class="section-h reveal">Kontakt & wycena</h2>
+        <p class="section-p reveal">Opisz krótko projekt — wrócimy z wyceną i terminem.</p>
+        <div class="form reveal form">
+          <form id="contactForm">
+            <div class="row">
+              <label class="field">
+                <span>Imię i nazwisko</span>
+                <input class="input" type="text" name="name" required autocomplete="name" />
+              </label>
+              <label class="field">
+                <span>E-mail</span>
+                <input class="input" type="email" name="email" required autocomplete="email" />
+              </label>
+            </div>
+            <label class="field" style="margin-top:.5rem">
+              <span>Wiadomość</span>
+              <textarea class="textarea" name="message" required placeholder="Na jaką stronę celujemy? przykład/branża/funkcje…"></textarea>
+            </label>
+            <button class="btn-submit" type="submit">Wyślij</button>
+            <p style="margin-top:.75rem;color:var(--text-muted)">
+              Wolę zadzwonić: <a href="tel:+48123456789">+48 123 456 789</a> • Napisz: <a href="mailto:hello@chromapixel.studio">hello@chromapixel.studio</a>
+            </p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="foot-wrap">
+      <div class="foot-logo">ChromaPixel Studio</div>
+      <p style="color:var(--text-muted)">Tworzymy przyszłość web designu — jeden projekt na raz.</p>
+      <div class="social">
+        <a href="mailto:hello@chromapixel.studio" aria-label="E-mail">📧</a>
+        <a href="tel:+48123456789" aria-label="Telefon">📱</a>
+        <a href="#" aria-label="LinkedIn">💼</a>
+        <a href="#" aria-label="Portfolio">🎨</a>
+      </div>
+      <p style="color:var(--text-muted);font-size:.9rem">© 2025 ChromaPixel Studio. All rights reserved. Made with 💜⚡</p>
+    </div>
+  </footer>
+
+  <script>
+    window.addEventListener('load', () => {
+      const loader = document.getElementById('loader');
+      setTimeout(() => loader.classList.add('hidden'), 900);
+    });
+
+    (function initParticles(){
+      const wrap = document.getElementById('particles');
+      const count = 70;
+      for(let i=0;i<count;i++){
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random()*100 + '%';
+        p.style.animationDuration = (10 + Math.random()*18) + 's';
+        p.style.animationDelay = (-Math.random()*18) + 's';
+        wrap.appendChild(p);
+      }
+    })();
+
+    const nav = document.getElementById('nav');
+    const menuBtn = document.getElementById('menuBtn');
+    const links = document.getElementById('links');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 12);
+    });
+    menuBtn?.addEventListener('click', () => links.classList.toggle('open'));
+    links?.addEventListener('click', e => {
+      if(e.target.tagName === 'A') links.classList.remove('open');
+    });
+
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add('active'); io.unobserve(e.target); }
+      });
+    },{threshold:.2});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+    document.getElementById('contactForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const f = new FormData(e.target);
+      const name = encodeURIComponent(f.get('name'));
+      const email = encodeURIComponent(f.get('email'));
+      const msg = encodeURIComponent(f.get('message'));
+      const subject = `Zapytanie — ${decodeURIComponent(name)}`;
+      const body = `Imię i nazwisko: ${decodeURIComponent(name)}%0D%0AE-mail: ${decodeURIComponent(email)}%0D%0A%0D%0AWiadomość:%0D%0A${decodeURIComponent(msg)}`;
+      window.location.href = `mailto:hello@chromapixel.studio?subject=${subject}&body=${body}`;
+    });
+  </script>
+</body>
+</html>
