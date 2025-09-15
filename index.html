@@ -6,6 +6,7 @@
   <title>ChromaPixel Studio — Arcydzieło Web Design</title>
   <meta name="description" content="ChromaPixel Studio: projektujemy szybkie, piękne i skuteczne strony WWW. Landing pages, sklepy, optymalizacja i SEO. Darmowa konsultacja." />
   <meta name="theme-color" content="#0a0a0f" />
+  <meta name="color-scheme" content="dark light" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -13,66 +14,136 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
   <!-- LOGO / Favicon / OG -->
-  <link rel="preload" as="image" href="https://www.dropbox.com/scl/fi/4vrlbbdoi7wj2ocibzvz8/ChromaPixel.png?rlkey=ibsxertdykfs7i0z5z7t109mi&st=hbcq2r2f&dl=1">
-  <link rel="icon" type="image/png" href="https://www.dropbox.com/scl/fi/4vrlbbdoi7wj2ocibzvz8/ChromaPixel.png?rlkey=ibsxertdykfs7i0z5z7t109mi&st=hbcq2r2f&dl=1">
+  <link rel="preload" as="image" href="https://dl.dropboxusercontent.com/scl/fi/xwswpyan3eg6noazye12l/ChromaPixel-Studio.png?rlkey=eod4aiei6lsdzithd05pjee2i&raw=1" />
+  <link rel="icon" type="image/png" href="https://dl.dropboxusercontent.com/scl/fi/xwswpyan3eg6noazye12l/ChromaPixel-Studio.png?rlkey=eod4aiei6lsdzithd05pjee2i&raw=1" />
   <meta property="og:type" content="website">
   <meta property="og:title" content="ChromaPixel Studio — Arcydzieło Web Design">
   <meta property="og:description" content="Projektujemy szybkie, piękne i skuteczne strony WWW. Darmowa konsultacja.">
-  <meta property="og:image" content="https://www.dropbox.com/scl/fi/4vrlbbdoi7wj2ocibzvz8/ChromaPixel.png?rlkey=ibsxertdykfs7i0z5z7t109mi&st=hbcq2r2f&dl=1">
+  <meta property="og:image" content="https://dl.dropboxusercontent.com/scl/fi/xwswpyan3eg6noazye12l/ChromaPixel-Studio.png?rlkey=eod4aiei6lsdzithd05pjee2i&raw=1">
 
   <!-- Styles -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Szybkie, lokalne poprawki + style sekcji Szablony i język -->
+  <style>
+    /* spacing stopki */
+    main > section:last-of-type{ padding-bottom:3rem; }
+    footer{ padding:2rem 1.5rem 1.5rem; }
+    .foot-text{ margin:.25rem 0 1rem; }
+    .social{ margin:.75rem 0 1rem; }
+    .foot-copy{ margin:.5rem 0 0; }
+    .foot-mark{ margin-top:.5rem; display:grid; place-items:center; }
+    .foot-mark img{ display:block; line-height:0; width:96px; height:96px; }
+
+    /* język */
+    .lang-switch{ display:flex; gap:.5rem; align-items:center; margin-left:.5rem; }
+    .lang-btn, .lang-globe{
+      border:none; cursor:pointer; font:600 12px/1 Inter,system-ui,sans-serif;
+      padding:.45rem .6rem; border-radius:999px;
+      background:#161623; color:#fff; opacity:.9; transition:.15s ease;
+    }
+    .lang-btn[aria-pressed="true"]{ outline:2px solid #6ee7b7; }
+    .lang-btn:hover,.lang-globe:hover{ opacity:1; transform:translateY(-1px); }
+    .lang-globe{ font-size:12px; display:flex; align-items:center; gap:.35rem; }
+    .lang-globe span{ font-weight:800; letter-spacing:.5px; }
+
+    /* SZABLONY / DEMO siatka */
+    .templates{ padding:5rem 0 4rem; position:relative; }
+    .templates .grid{
+      display:grid; gap:1.25rem;
+      grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+    }
+    .template{
+      position:relative; display:block; border-radius:16px; overflow:hidden; text-decoration:none;
+      box-shadow:0 10px 24px rgba(0,0,0,.15); background:#0b0b12;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .template img{ width:100%; aspect-ratio:16/9; object-fit:cover; display:block; opacity:.9; transition:.35s ease; }
+    .template .inner{
+      position:absolute; inset:auto 0 0 0; padding:1rem 1.1rem;
+      background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.65) 100%);
+      color:#fff; display:flex; justify-content:space-between; align-items:center; gap:.75rem;
+    }
+    .template h3{ font-size:1rem; font-weight:800; margin:0; }
+    .btn-demo{ font-size:.85rem; font-weight:700; padding:.4rem .7rem; border-radius:999px;
+      background:linear-gradient(135deg,#10b981,#0891b2); white-space:nowrap; }
+    .template:hover img{ transform:scale(1.04); opacity:1; }
+    .templates .section-p{ max-width:720px; }
+
+    /* menu mobilne – jeśli masz własne style, to te nie przeszkadzają */
+    @media (max-width:768px){
+      .lang-switch{ display:none; } /* zostawiamy minimalizm w mobilu; możesz zmienić */
+    }
+  </style>
+
+  <noscript><style>.loader{display:none!important}</style></noscript>
 </head>
 <body>
+  <!-- Pasek postępu scrolla -->
+  <div id="progressBar" aria-hidden="true"></div>
+
   <a class="skip-link" href="#main">Pomiń nawigację</a>
 
-  <!-- Backgrounds -->
+  <!-- Tła -->
+  <canvas id="matrixRain" class="matrix" aria-hidden="true"></canvas>
   <div class="bg-masterpiece" aria-hidden="true"></div>
   <div id="particles" class="bg-particles" aria-hidden="true"></div>
 
   <!-- Loader -->
-  <div id="loader" class="loader" role="alert" aria-live="polite">
-    <div class="logo">ChromaPixel Studio</div>
+  <div id="loader" class="loader" role="status" aria-live="polite" aria-label="Wczytywanie">
+    <div class="logo glitch" data-text="ChromaPixel Studio">ChromaPixel Studio</div>
     <div class="progress" aria-hidden="true"></div>
     <div class="load-note">Loading experience…</div>
   </div>
 
   <!-- Nav -->
-  <nav id="nav">
+  <nav id="nav" role="navigation" aria-label="Główna nawigacja">
     <div class="nav-wrap">
-      <a class="brand" href="#home" aria-label="ChromaPixel Studio — strona główna">
-        <img
-          src="https://www.dropbox.com/scl/fi/4vrlbbdoi7wj2ocibzvz8/ChromaPixel.png?rlkey=ibsxertdykfs7i0z5z7t109mi&st=hbcq2r2f&dl=1"
-          alt="Logo ChromaPixel Studio" width="42" height="42" loading="eager" decoding="async">
+      <a class="brand magnetic" href="#home" aria-label="ChromaPixel Studio — strona główna">
+        <img id="brandLogo"
+          src="https://dl.dropboxusercontent.com/scl/fi/xwswpyan3eg6noazye12l/ChromaPixel-Studio.png?rlkey=eod4aiei6lsdzithd05pjee2i&raw=1"
+          alt="Logo ChromaPixel Studio" width="42" height="42" loading="eager" decoding="async" fetchpriority="high"
+          onerror="this.onerror=null; this.src='assets/logo.png'; this.alt='ChromaPixel Studio';">
         <span class="txt">ChromaPixel Studio</span>
       </a>
-      <button class="menu-btn" id="menuBtn" aria-label="Otwórz menu">☰</button>
+
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="Otwórz menu" aria-controls="links" aria-expanded="false">☰</button>
+
       <ul class="links" id="links">
         <li><a href="#uslugi">Usługi</a></li>
         <li><a href="#lab">Performance Lab</a></li>
         <li><a href="#playground">Playground</a></li>
         <li><a href="#showcase">Showcase</a></li>
+        <li><a href="#templates">Szablony</a></li>
         <li><a href="#onas">O nas</a></li>
         <li><a href="#kontakt">Kontakt</a></li>
-        <li><a class="cta-mini" href="#kontakt">Bezpłatna wycena</a></li>
+        <li><a class="cta-mini magnetic" href="#kontakt" aria-label="Bezpłatna wycena">Bezpłatna wycena</a></li>
+        
+
+        <!-- Przełącznik języka – widoczny z ikonką EN -->
+        <li class="lang-switch">
+          <button class="lang-btn" data-lang="pl" aria-pressed="true" title="Polski">PL</button>
+          <button class="lang-btn" data-lang="en" aria-pressed="false" title="English">EN</button>
+        </li>
       </ul>
     </div>
   </nav>
 
   <main id="main">
     <!-- Hero -->
-    <section id="home" class="hero">
+    <section id="home" class="hero" aria-label="Hero">
       <div class="content">
-        <h1 class="title">
-          <span class="word">ChromaPixel</span> <span class="word">Studio</span>
+        <h1 class="title holo">
+          <span class="word glitch reveal-text" data-text="ChromaPixel">ChromaPixel</span>
+          <span class="word glitch reveal-text" data-text="Studio">Studio</span>
         </h1>
-        <p class="subtitle">
+        <p class="subtitle reveal-text">
           Projektujemy strony WWW, które łączą <strong>design klasy premium</strong> z
           <strong>wynikami</strong>. Performance, SEO i konwersja — od startu.
         </p>
-        <div class="cta-row">
-          <a class="btn btn-primary" href="#kontakt">Porozmawiajmy</a>
-          <a class="btn btn-ghost" href="#uslugi">Zobacz ofertę</a>
+        <div class="cta-row" role="group" aria-label="Wezwania do działania">
+          <a class="btn btn-primary liquid magnetic" href="#kontakt">Porozmawiajmy</a>
+          <a class="btn btn-ghost magnetic" href="#uslugi">Zobacz ofertę</a>
         </div>
       </div>
       <div class="floating-3d box" aria-hidden="true"></div>
@@ -81,50 +152,66 @@
     </section>
 
     <!-- Usługi -->
-    <section id="uslugi" class="services">
+    <section id="uslugi" class="services" aria-label="Usługi">
       <div class="container">
-        <h2 class="section-h reveal">Usługi</h2>
-        <p class="section-p reveal">Od idei po wdrożenie — szybkie i dopracowane projekty.</p>
+        <h2 class="section-h reveal reveal-text">Usługi</h2>
+        <p class="section-p reveal reveal-text">Od idei po wdrożenie — szybkie i dopracowane projekty.</p>
         <div class="grid">
-          <article class="card reveal">
-            <div class="icon">💻</div>
-            <h3>Strony WWW</h3>
+          <article class="card tilt magnetic reveal">
+            <div class="icon" aria-hidden="true">💻</div>
+            <h3 class="reveal-text">Strony WWW</h3>
             <p>Nowoczesne, responsywne, zoptymalizowane pod Core Web Vitals. HTML/CSS/JS lub Next/React.</p>
           </article>
-          <article class="card reveal">
-            <div class="icon">🛒</div>
-            <h3>Sklepy i płatności</h3>
+          <article class="card tilt magnetic reveal">
+            <div class="icon" aria-hidden="true">🛒</div>
+            <h3 class="reveal-text">Sklepy i płatności</h3>
             <p>Sklepy e-commerce, integracje płatności i automatyzacje procesów.</p>
           </article>
-          <article class="card reveal">
-            <div class="icon">🚀</div>
-            <h3>Landing pages</h3>
+          <article class="card tilt magnetic reveal">
+            <div class="icon" aria-hidden="true">🚀</div>
+            <h3 class="reveal-text">Landing pages</h3>
             <p>Strony kampanijne z naciskiem na szybkość, UX i konwersję leadów.</p>
           </article>
-          <article class="card reveal">
-            <div class="icon">🔎</div>
-            <h3>SEO + optymalizacja</h3>
+          <article class="card tilt magnetic reveal">
+            <div class="icon" aria-hidden="true">🔎</div>
+            <h3 class="reveal-text">SEO + optymalizacja</h3>
             <p>Audyt techniczny, CWV, schemy danych i wdrożenia SEO.</p>
           </article>
         </div>
       </div>
     </section>
 
-    <!-- Performance Lab -->
-    <section id="lab" class="lab reveal">
+    <!-- Live Performance Lab -->
+    <section id="lab" class="lab reveal" aria-label="Live Performance Lab">
       <div class="container">
-        <h2 class="section-h">Live Performance Lab</h2>
-        <p class="section-p">Pomiary wprost z Twojej przeglądarki. Tak projektujemy pod Core Web Vitals.</p>
+        <h2 class="section-h reveal-text">Live Performance Lab</h2>
+        <p class="section-p reveal-text">Pomiary wprost z Twojej przeglądarki. Tak projektujemy pod Core Web Vitals.</p>
         <div class="lab-grid">
-          <div class="lab-card"><div class="lab-label">LCP</div><div class="lab-value" id="lcp">–</div><div class="lab-sub">Largest Contentful Paint</div></div>
-          <div class="lab-card"><div class="lab-label">CLS</div><div class="lab-value" id="cls">0.00</div><div class="lab-sub">Cumulative Layout Shift</div></div>
-          <div class="lab-card"><div class="lab-label">FPS</div><div class="lab-value" id="fps">–</div><div class="lab-sub">Średnia kl./s</div></div>
-          <div class="lab-card"><div class="lab-label">Sieć/Urządzenie</div><div class="lab-meta" id="net">—</div></div>
+          <div class="lab-card tilt magnetic">
+            <div class="lab-label">LCP</div>
+            <div class="lab-value" id="lcp" role="status" aria-live="polite">–</div>
+            <div class="lab-sub">Largest Contentful Paint</div>
+          </div>
+          <div class="lab-card tilt magnetic">
+            <div class="lab-label">CLS</div>
+            <div class="lab-value" id="cls" role="status" aria-live="polite">0.00</div>
+            <div class="lab-sub">Cumulative Layout Shift</div>
+          </div>
+          <div class="lab-card tilt magnetic">
+            <div class="lab-label">FPS</div>
+            <div class="lab-value" id="fps" role="status" aria-live="polite">–</div>
+            <div class="lab-sub">Średnia kl./s</div>
+          </div>
+          <div class="lab-card tilt magnetic">
+            <div class="lab-label">Sieć/Urządzenie</div>
+            <div class="lab-meta" id="net">—</div>
+          </div>
         </div>
         <div class="lab-actions">
-          <form id="psiForm" class="psi">
-            <input class="input psi-input" name="url" type="url" placeholder="Wklej swój adres (https://…)" required>
-            <button class="btn btn-primary" type="submit">Przetestuj w PageSpeed</button>
+          <form id="psiForm" class="psi" aria-label="Test PageSpeed">
+            <label class="visually-hidden" for="psiUrl">Adres URL do przetestowania</label>
+            <input id="psiUrl" class="input psi-input" name="url" type="url" placeholder="Wklej swój adres (https://…)" required inputmode="url" />
+            <button class="btn btn-primary liquid magnetic" type="submit">Przetestuj w PageSpeed</button>
           </form>
           <small class="lab-note">Wyniki zależą od treści i warunków sieci. Realny audyt — w pakiecie wdrożeniowym.</small>
         </div>
@@ -132,33 +219,39 @@
     </section>
 
     <!-- Playground -->
-    <section id="playground" class="playground">
+    <section id="playground" class="playground" aria-label="Design System Playground">
       <div class="container">
-        <h2 class="section-h">Design System Playground</h2>
-        <p class="section-p">Dopasuj styl w locie. System komponentów = szybkie iteracje + spójność brandu.</p>
+        <h2 class="section-h reveal-text">Design System Playground</h2>
+        <p class="section-p reveal-text">Dopasuj styl w locie. System komponentów = szybkie iteracje + spójność brandu.</p>
         <div class="pg-wrap">
-          <form class="pg-controls" onsubmit="return false">
-            <label>Promień rogów <input type="range" min="4" max="32" value="14" id="pgRadius"></label>
-            <label>Intensywność cienia <input type="range" min="0" max="1" step="0.05" value="0.35" id="pgShadow"></label>
-            <label>Nasycenie koloru <input type="range" min="0.6" max="1.4" step="0.05" value="1.0" id="pgSat"></label>
-            <label>Spacing (rem) <input type="range" min="0.5" max="2" step="0.1" value="1" id="pgSpace"></label>
+          <form class="pg-controls" onsubmit="return false" aria-label="Sterowanie parametrami podglądu">
+            <label>Promień rogów <input type="range" min="4" max="32" value="14" id="pgRadius" aria-label="Promień rogów"></label>
+            <label>Intensywność cienia <input type="range" min="0" max="1" step="0.05" value="0.35" id="pgShadow" aria-label="Intensywność cienia"></label>
+            <label>Nasycenie koloru <input type="range" min="0.6" max="1.4" step="0.05" value="1.0" id="pgSat" aria-label="Nasycenie koloru"></label>
+            <label>Spacing (rem) <input type="range" min="0.5" max="2" step="0.1" value="1" id="pgSpace" aria-label="Odstępy"></label>
           </form>
 
           <div class="pg-preview">
-            <div class="card demo-card">
-              <div class="icon">✨</div>
-              <h3>Komponent Card</h3>
+            <div class="card demo-card tilt magnetic">
+              <div class="icon" aria-hidden="true">✨</div>
+              <h3 class="reveal-text">Komponent Card</h3>
               <p>Konfigurowalny moduł z design systemu. Skalowalny, dostępny, lekki.</p>
               <div style="display:flex; gap:.75rem; margin-top:.75rem">
-                <a class="btn btn-primary" href="#">Primary</a>
-                <a class="btn btn-ghost" href="#">Ghost</a>
+                <a class="btn btn-primary liquid magnetic" href="#" aria-label="Przycisk Primary">Primary</a>
+                <a class="btn btn-ghost magnetic" href="#" aria-label="Przycisk Ghost">Ghost</a>
               </div>
             </div>
 
-            <form class="demo-form" onsubmit="return false">
-              <label class="field"><span>E-mail</span><input class="input" type="email" placeholder="hello@twoj-brand.pl"></label>
-              <label class="field"><span>Wiadomość</span><textarea class="textarea" placeholder="Napisz, czego potrzebujesz…"></textarea></label>
-              <button class="btn-submit" type="button">Wyślij</button>
+            <form class="demo-form tilt magnetic" onsubmit="return false" aria-label="Przykładowy formularz">
+              <label class="field">
+                <span>E-mail</span>
+                <input class="input" type="email" placeholder="chromap@twoj-brand.pl" autocomplete="email">
+              </label>
+              <label class="field">
+                <span>Wiadomość</span>
+                <textarea class="textarea" placeholder="Napisz, czego potrzebujesz…"></textarea>
+              </label>
+              <button class="btn-submit magnetic" type="button">Wyślij</button>
             </form>
           </div>
         </div>
@@ -166,17 +259,16 @@
     </section>
 
     <!-- Before / After -->
-    <section id="showcase" class="showcase">
+    <section id="showcase" class="showcase" aria-label="Before / After">
       <div class="container">
-        <h2 class="section-h">Before / After</h2>
-        <p class="section-p">Redesign, który robi robotę. Przeciągnij suwak, by zobaczyć różnicę.</p>
+        <h2 class="section-h reveal-text">Before / After</h2>
+        <p class="section-p reveal-text">Redesign, który robi robotę. Przeciągnij suwak, by zobaczyć różnicę.</p>
         <div class="ba" id="ba">
-          <!-- PODMIEŃ na swoje grafiki (16:9) -->
-          <img class="ba-img ba-before" src="https://images.unsplash.com/photo-1520975682031-a4d1d6f9d1f4?q=80&w=1600&auto=format&fit=crop" alt="Przed">
-          <img class="ba-img ba-after"  src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1600&auto=format&fit=crop" alt="Po">
-          <div class="ba-handle" id="baHandle" aria-label="Uchwyt porównywarki" role="separator" tabindex="0"><span class="ba-dot"></span></div>
+          <img class="ba-img ba-before" src="https://images.unsplash.com/photo-1520975682031-a4d1d6f9d1f4?q=80&w=1600&auto=format&fit=crop" alt="Przed" loading="lazy" decoding="async">
+          <img class="ba-img ba-after"  src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1600&auto=format&fit=crop" alt="Po" loading="lazy" decoding="async">
+          <div class="ba-handle" id="baHandle" aria-label="Uchwyt porównywarki" role="separator" tabindex="0"><span class="ba-dot" aria-hidden="true"></span></div>
         </div>
-        <ul class="ba-bullets">
+        <ul class="ba-bullets" aria-label="Efekty redesignu">
           <li>+71% konwersji leadów (landing)</li>
           <li>Core Web Vitals: zielone wskaźniki</li>
           <li>SEO: widoczność fraz x2</li>
@@ -184,44 +276,103 @@
       </div>
     </section>
 
+    <!-- SZABLONY / DEMO -->
+    <section id="templates" class="templates" aria-label="Dema szablonów">
+      <div class="container">
+        <h2 class="section-h reveal-text">Szablony — Dema live</h2>
+        <p class="section-p reveal-text">Kliknij, aby otworzyć demo w nowej karcie.</p>
+
+        <div class="grid">
+          <a class="template tilt magnetic reveal"
+            href="templates/blog.html" target="_blank" rel="noopener noreferrer"
+            aria-label="Otwórz demo: Blog podróżniczy">
+            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
+            <div class="inner"><h3>Blog podróżniczy</h3><span class="btn-demo">Zobacz demo →</span></div>
+          </a>
+
+          <a class="template tilt magnetic reveal"
+            href="templates/uslugi.html" target="_blank" rel="noopener noreferrer"
+            aria-label="Otwórz demo: Usługi lokalne">
+            <img src="https://cdn.prod.website-files.com/64de12e2b7dad0d3dd226b9a/663cf39e84dbc946d84adce0_cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTExL2ZsNTAyMTEwMzU4MjgtaW1hZ2UuanBn.png" alt="" aria-hidden="true">
+            <div class="inner"><h3>Usługi lokalne</h3><span class="btn-demo">Zobacz demo →</span></div>
+          </a>
+
+          <a class="template tilt magnetic reveal"
+            href="templates/restauracja.html" target="_blank" rel="noopener noreferrer"
+            aria-label="Otwórz demo: Restauracja">
+            <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
+            <div class="inner"><h3>Restauracja</h3><span class="btn-demo">Zobacz demo →</span></div>
+          </a>
+
+          <a class="template tilt magnetic reveal"
+            href="templates/sklep.html" target="_blank" rel="noopener noreferrer"
+            aria-label="Otwórz demo: Sklep internetowy">
+            <img src="https://images.unsplash.com/photo-1543087903-1ac2ec7aa8c5?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
+            <div class="inner"><h3>Sklep internetowy</h3><span class="btn-demo">Zobacz demo →</span></div>
+          </a>
+
+          <a class="template tilt magnetic reveal"
+            href="templates/portfolio.html" target="_blank" rel="noopener noreferrer"
+            aria-label="Otwórz demo: Portfolio">
+            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
+            <div class="inner"><h3>Portfolio</h3><span class="btn-demo">Zobacz demo →</span></div>
+          </a>
+
+          <a class="template tilt magnetic reveal"
+            href="templates/korporacja.html" target="_blank" rel="noopener noreferrer"
+            aria-label="Otwórz demo: Firma / korporacja">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
+            <div class="inner"><h3>Firma / korporacja</h3><span class="btn-demo">Zobacz demo →</span></div>
+          </a>
+        </div>
+      </div>
+    </section>
+
     <!-- O nas -->
-    <section id="onas" class="about">
+    <section id="onas" class="about" aria-label="O nas">
       <div class="container about-wrap">
         <div>
-          <h2 class="section-h" style="-webkit-text-fill-color:transparent;background:var(--accent)">O nas</h2>
-          <p>Łączymy estetykę z inżynierią. Pracujemy zwinnie, dowozimy na czas i transparentnie komunikujemy postępy.</p>
+          <h2 class="section-h reveal-text" style="-webkit-text-fill-color:transparent;background:var(--accent)">O nas</h2>
+          <p class="reveal-text">Łączymy estetykę z inżynierią. Pracujemy zwinnie, dowozimy na czas i transparentnie komunikujemy postępy.</p>
           <ul class="about-bullets">
             <li>Projekt → makieta → development → wdrożenie</li>
             <li>Performance-first: Lighthouse, CWV, dostępność</li>
             <li>Stała opieka powdrożeniowa i rozwój</li>
           </ul>
-          <div class="stats">
-            <div class="stat"><div class="num">100+</div><div>komponentów UI</div></div>
-            <div class="stat"><div class="num">~1.2s</div><div>LCP*</div></div>
-            <div class="stat"><div class="num">AA</div><div>dostępność (WCAG)</div></div>
-            <div class="stat"><div class="num">SEO↑</div><div>gotowe pod indeksację</div></div>
+          <div class="stats" role="list">
+            <div class="stat tilt magnetic" role="listitem"><div class="num">100+</div><div>komponentów UI</div></div>
+            <div class="stat tilt magnetic" role="listitem"><div class="num">~1.2s</div><div>LCP*</div></div>
+            <div class="stat tilt magnetic" role="listitem"><div class="num">AA</div><div>dostępność (WCAG)</div></div>
+            <div class="stat tilt magnetic" role="listitem"><div class="num">SEO↑</div><div>gotowe pod indeksację</div></div>
           </div>
           <p class="section-p" style="margin-top:1rem">*Wynik zależny od hostingu, treści i analityki.</p>
         </div>
-        <div class="visual"><div class="frame" aria-hidden="true"></div></div>
+        <div class="visual" aria-hidden="true"><div class="frame"></div></div>
       </div>
     </section>
 
     <!-- Kontakt -->
-    <section id="kontakt" class="contact">
+    <section id="kontakt" class="contact" aria-label="Kontakt i wycena">
       <div class="container">
-        <h2 class="section-h reveal">Kontakt & wycena</h2>
-        <p class="section-p reveal">Opisz krótko projekt — wrócimy z wyceną i terminem.</p>
-        <div class="form reveal form">
-          <form id="contactForm">
+        <h2 class="section-h reveal-text">Kontakt &amp; wycena</h2>
+        <p class="section-p reveal-text">Opisz krótko projekt — wrócimy z wyceną i terminem.</p>
+        <div class="form reveal">
+          <form id="contactForm" novalidate>
             <div class="row">
-              <label class="field"><span>Imię i nazwisko</span><input class="input" type="text" name="name" required autocomplete="name" /></label>
-              <label class="field"><span>E-mail</span><input class="input" type="email" name="email" required autocomplete="email" /></label>
+              <label class="field">
+                <span>Imię i nazwisko</span>
+                <input class="input" type="text" name="name" required autocomplete="name" />
+              </label>
+              <label class="field">
+                <span>E-mail</span>
+                <input class="input" type="email" name="email" required autocomplete="email" />
+              </label>
             </div>
-            <label class="field" style="margin-top:.5rem"><span>Wiadomość</span>
+            <label class="field" style="margin-top:.5rem">
+              <span>Wiadomość</span>
               <textarea class="textarea" name="message" required placeholder="Na jaką stronę celujemy? przykład/branża/funkcje…"></textarea>
             </label>
-            <button class="btn-submit" type="submit">Wyślij</button>
+            <button class="btn-submit magnetic" type="submit" aria-label="Wyślij wiadomość">Wyślij</button>
             <p class="contact-alt">Wolę zadzwonić: <a href="tel:+48123456789">+48 123 456 789</a> • Napisz: <a href="mailto:hello@chromapixel.studio">hello@chromapixel.studio</a></p>
           </form>
         </div>
@@ -230,21 +381,57 @@
   </main>
 
   <!-- Stopka -->
-  <footer>
+  <footer aria-label="Stopka">
     <div class="foot-wrap">
-      <div class="foot-logo">ChromaPixel Studio</div>
+      <div class="foot-logo holo">ChromaPixel Studio</div>
       <p class="foot-text">Tworzymy przyszłość web designu — jeden projekt na raz.</p>
-      <div class="social">
-        <a href="mailto:hello@chromapixel.studio" aria-label="E-mail">📧</a>
-        <a href="tel:+48123456789" aria-label="Telefon">📱</a>
-        <a href="#" aria-label="LinkedIn">💼</a>
-        <a href="#" aria-label="Portfolio">🎨</a>
+      <div class="social" role="list" aria-label="Media i kontakt">
+        <a href="mailto:hello@chromapixel.studio" aria-label="E-mail" class="magnetic" role="listitem">📧</a>
+        <a href="tel:+48123456789" aria-label="Telefon" class="magnetic" role="listitem">📱</a>
+        <a href="#" aria-label="LinkedIn" class="magnetic" role="listitem">💼</a>
+        <a href="#" aria-label="Portfolio" class="magnetic" role="listitem">🎨</a>
       </div>
       <p class="foot-copy">© 2025 ChromaPixel Studio. All rights reserved. Made with 💜⚡</p>
+
+      <div class="foot-mark">
+        <img
+          src="https://dl.dropboxusercontent.com/scl/fi/xwswpyan3eg6noazye12l/ChromaPixel-Studio.png?rlkey=eod4aiei6lsdzithd05pjee2i&raw=1"
+          alt="ChromaPixel Studio — logo"
+          width="96" height="96" loading="lazy" decoding="async"
+          onerror="this.onerror=null; this.src='assets/logo.png';">
+      </div>
     </div>
   </footer>
 
+  <!-- Custom Cursor (desktop only) -->
+  <div id="cursor" aria-hidden="true"></div>
+  <div id="cursorTrail" aria-hidden="true"></div>
+  <div id="cursorMsgs" aria-live="polite" aria-atomic="true"></div>
+
   <!-- Scripts -->
   <script src="main.js" defer></script>
+  <script src="i18n.js" defer></script>
+  <script>
+    /* Klik w 🌐 EN = szybki switch na EN (hak do i18n.js – wywołujemy to samo co przycisk EN) */
+    document.addEventListener('DOMContentLoaded', () => {
+      const globe = document.getElementById('langGlobe');
+      const enBtn = document.querySelector('.lang-btn[data-lang="en"]');
+      if (globe && enBtn) globe.addEventListener('click', () => enBtn.click());
+    });
+  </script>
+
+  <!-- Dane strukturalne -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Organization",
+    "name":"ChromaPixel Studio",
+    "url":"https://chromapixel.studio",
+    "logo":"https://dl.dropboxusercontent.com/scl/fi/xwswpyan3eg6noazye12l/ChromaPixel-Studio.png?rlkey=eod4aiei6lsdzithd05pjee2i&raw=1",
+    "email":"hello@chromapixel.studio",
+    "telephone":"+48 123 456 789",
+    "sameAs":[]
+  }
+  </script>
 </body>
 </html>

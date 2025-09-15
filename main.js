@@ -167,3 +167,31 @@ document.getElementById('psiForm')?.addEventListener('submit', (e)=>{
     }
   });
 })();
+
+/* === NAV: przewijanie poziome (wheel + drag) === */
+(function(){
+  const scroller = document.getElementById('links');
+  if(!scroller) return;
+
+  // wheel: zamień pionowy scroll na poziomy w obszarze menu
+  scroller.addEventListener('wheel', (e)=>{
+    if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+      scroller.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }
+  }, { passive:false });
+
+  // drag-to-scroll
+  let isDown = false, startX = 0, startLeft = 0;
+  scroller.addEventListener('mousedown', (e)=>{
+    isDown = true; startX = e.pageX; startLeft = scroller.scrollLeft;
+  });
+  window.addEventListener('mouseup', ()=> isDown = false);
+  scroller.addEventListener('mousemove', (e)=>{
+    if(!isDown) return;
+    e.preventDefault();
+    const walk = e.pageX - startX;
+    scroller.scrollLeft = startLeft - walk;
+  });
+})();
+
