@@ -195,3 +195,23 @@ document.getElementById('psiForm')?.addEventListener('submit', (e)=>{
   });
 })();
 
+/* === CASE: toggle PRZED/PO (mobile) === */
+(function(){
+  const area = document.querySelector('.compare');
+  if(!area) return;
+
+  const btns = area.querySelectorAll('.cmp-btn');
+  const views = area.querySelectorAll('.cmp-view');
+
+  const set = (key) => {
+    btns.forEach(b => {
+      const active = b.dataset.show === key;
+      b.classList.toggle('is-active', active);
+      b.setAttribute('aria-selected', String(active));
+    });
+    views.forEach(v => v.classList.toggle('active', v.classList.contains('show-'+key)));
+  };
+
+  btns.forEach(b => b.addEventListener('click', () => set(b.dataset.show)));
+  set('after'); // domyślnie pokaż „Po”
+})();

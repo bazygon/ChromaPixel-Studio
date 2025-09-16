@@ -24,9 +24,9 @@
   <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Szybkie, lokalne poprawki + style sekcji Szablony i język -->
+  <!-- Lokalne poprawki + style sekcji Szablony, Język i Case study -->
   <style>
-    /* spacing stopki */
+    /* Stopka: ciaśniej */
     main > section:last-of-type{ padding-bottom:3rem; }
     footer{ padding:2rem 1.5rem 1.5rem; }
     .foot-text{ margin:.25rem 0 1rem; }
@@ -35,19 +35,17 @@
     .foot-mark{ margin-top:.5rem; display:grid; place-items:center; }
     .foot-mark img{ display:block; line-height:0; width:96px; height:96px; }
 
-    /* język */
+    /* Język */
     .lang-switch{ display:flex; gap:.5rem; align-items:center; margin-left:.5rem; }
-    .lang-btn, .lang-globe{
+    .lang-btn{
       border:none; cursor:pointer; font:600 12px/1 Inter,system-ui,sans-serif;
       padding:.45rem .6rem; border-radius:999px;
       background:#161623; color:#fff; opacity:.9; transition:.15s ease;
     }
     .lang-btn[aria-pressed="true"]{ outline:2px solid #6ee7b7; }
-    .lang-btn:hover,.lang-globe:hover{ opacity:1; transform:translateY(-1px); }
-    .lang-globe{ font-size:12px; display:flex; align-items:center; gap:.35rem; }
-    .lang-globe span{ font-weight:800; letter-spacing:.5px; }
+    .lang-btn:hover{ opacity:1; transform:translateY(-1px); }
 
-    /* SZABLONY / DEMO siatka */
+    /* SZABLONY / DEMO */
     .templates{ padding:5rem 0 4rem; position:relative; }
     .templates .grid{
       display:grid; gap:1.25rem;
@@ -70,9 +68,68 @@
     .template:hover img{ transform:scale(1.04); opacity:1; }
     .templates .section-p{ max-width:720px; }
 
-    /* menu mobilne – jeśli masz własne style, to te nie przeszkadzają */
+    /* CASE STUDY (zamiast Before/After slidera) */
+    .case{ padding:6rem 1.5rem; }
+    .kpi-grid{
+      display:grid; gap:1rem;
+      grid-template-columns:repeat(4,minmax(160px,1fr));
+      margin:1rem 0 2rem;
+    }
+    .kpi-card{
+      background:var(--dark-card);
+      border:1px solid var(--glass-border);
+      border-radius:18px; padding:1.25rem;
+      text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.25);
+    }
+    .kpi-num{
+      font-weight:900; font-size:clamp(1.8rem,4.2vw,2.6rem);
+      background:var(--neon); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+      line-height:1; margin-bottom:.25rem;
+    }
+    .kpi-label{ font-weight:700; }
+    .kpi-sub{ color:var(--text-muted); display:block; margin-top:.35rem; }
+
+    .compare{
+      background:var(--dark-card); border:1px solid var(--glass-border);
+      border-radius:18px; padding:1rem; overflow:hidden;
+    }
+    .compare-toolbar{
+      display:flex; gap:.5rem; justify-content:center; margin-bottom:.75rem;
+    }
+    .cmp-btn{
+      border:1px solid var(--glass-border);
+      background:var(--glass); color:#fff; font-weight:800;
+      padding:.55rem 1rem; border-radius:999px; cursor:pointer;
+      transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .cmp-btn.is-active{ background:var(--primary); box-shadow:var(--shadow-primary); }
+    .cmp-btn:hover{ transform:translateY(-1px); }
+
+    .compare-stage{ position:relative; }
+    .cmp-view{ display:none; }
+    .cmp-view.active{ display:block; }
+    .cmp-view img{
+      width:100%; height:auto; display:block; border-radius:12px; border:1px solid var(--glass-border);
+    }
+    .cmp-view figcaption{
+      color:var(--text-muted); font-size:.9rem; text-align:center; margin-top:.5rem;
+    }
+
+    /* Desktop: 2 kolumny (Przed/Po obok siebie) */
+    @media (min-width: 900px){
+      .compare-toolbar{ display:none; }
+      .compare-stage{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+      .cmp-view{ display:block; }
+      .cmp-view.active{ display:block; }
+    }
+
+    /* Responsywność */
+    @media (max-width: 1000px){ .kpi-grid{ grid-template-columns:repeat(2,1fr); } }
+    @media (max-width: 520px){ .kpi-grid{ grid-template-columns:1fr; } }
+
+    /* Mobile – minimalistyczny top bar */
     @media (max-width:768px){
-      .lang-switch{ display:none; } /* zostawiamy minimalizm w mobilu; możesz zmienić */
+      .lang-switch{ display:none; }
     }
   </style>
 
@@ -118,9 +175,8 @@
         <li><a href="#onas">O nas</a></li>
         <li><a href="#kontakt">Kontakt</a></li>
         <li><a class="cta-mini magnetic" href="#kontakt" aria-label="Bezpłatna wycena">Bezpłatna wycena</a></li>
-        
 
-        <!-- Przełącznik języka – widoczny z ikonką EN -->
+        <!-- Przełącznik języka -->
         <li class="lang-switch">
           <button class="lang-btn" data-lang="pl" aria-pressed="true" title="Polski">PL</button>
           <button class="lang-btn" data-lang="en" aria-pressed="false" title="English">EN</button>
@@ -258,75 +314,117 @@
       </div>
     </section>
 
-    <!-- Before / After -->
-    <section id="showcase" class="showcase" aria-label="Before / After">
+    <!-- CASE STUDY (zamiast Before/After suwaka) -->
+    <section id="showcase" class="case" aria-label="Case study: redesign w liczbach">
       <div class="container">
-        <h2 class="section-h reveal-text">Before / After</h2>
-        <p class="section-p reveal-text">Redesign, który robi robotę. Przeciągnij suwak, by zobaczyć różnicę.</p>
-        <div class="ba" id="ba">
-          <img class="ba-img ba-before" src="https://images.unsplash.com/photo-1520975682031-a4d1d6f9d1f4?q=80&w=1600&auto=format&fit=crop" alt="Przed" loading="lazy" decoding="async">
-          <img class="ba-img ba-after"  src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1600&auto=format&fit=crop" alt="Po" loading="lazy" decoding="async">
-          <div class="ba-handle" id="baHandle" aria-label="Uchwyt porównywarki" role="separator" tabindex="0"><span class="ba-dot" aria-hidden="true"></span></div>
+        <h2 class="section-h reveal-text">Redesign, który dowozi</h2>
+        <p class="section-p reveal-text">Prawdziwe metryki po wdrożeniu (3 mies.).</p>
+
+        <div class="kpi-grid reveal">
+          <article class="kpi-card">
+            <div class="kpi-num">+71%</div>
+            <div class="kpi-label">konwersji leadów</div>
+            <small class="kpi-sub">A/B test na 18k sesji</small>
+          </article>
+          <article class="kpi-card">
+            <div class="kpi-num">1.2s</div>
+            <div class="kpi-label">LCP na mobile</div>
+            <small class="kpi-sub">p95 z CrUX</small>
+          </article>
+          <article class="kpi-card">
+            <div class="kpi-num">100%</div>
+            <div class="kpi-label">zielone CWV</div>
+            <small class="kpi-sub">PageSpeed & Lighthouse</small>
+          </article>
+          <article class="kpi-card">
+            <div class="kpi-num">x2</div>
+            <div class="kpi-label">widoczność fraz</div>
+            <small class="kpi-sub">Google Search Console</small>
+          </article>
         </div>
-        <ul class="ba-bullets" aria-label="Efekty redesignu">
-          <li>+71% konwersji leadów (landing)</li>
-          <li>Core Web Vitals: zielone wskaźniki</li>
-          <li>SEO: widoczność fraz x2</li>
-        </ul>
-      </div>
-    </section>
 
-    <!-- SZABLONY / DEMO -->
-    <section id="templates" class="templates" aria-label="Dema szablonów">
-      <div class="container">
-        <h2 class="section-h reveal-text">Szablony — Dema live</h2>
-        <p class="section-p reveal-text">Kliknij, aby otworzyć demo w nowej karcie.</p>
+        <div class="compare reveal">
+          <div class="compare-toolbar" role="tablist" aria-label="Porównanie widoku">
+            <button class="cmp-btn is-active" data-show="before" role="tab" aria-selected="true">Przed</button>
+            <button class="cmp-btn" data-show="after" role="tab" aria-selected="false">Po</button>
+          </div>
 
-        <div class="grid">
-          <a class="template tilt magnetic reveal"
-            href="templates/blog.html" target="_blank" rel="noopener noreferrer"
-            aria-label="Otwórz demo: Blog podróżniczy">
-            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
-            <div class="inner"><h3>Blog podróżniczy</h3><span class="btn-demo">Zobacz demo →</span></div>
-          </a>
+          <div class="compare-stage">
+            <figure class="cmp-view show-before active">
+              <img src="https://www.dropbox.com/scl/fi/bmua3gk3p4n30f6ptfosz/przed.png?rlkey=ofcxxbzu7bfgkwcus14gc4v00&st=wb2pd3ex&dl=1"
+                   alt="Zrzut ekranu starej strony — przed redesignem" loading="lazy" decoding="async">
+              <figcaption>Przed: wolniejsza, mało spójna wizualnie.</figcaption>
+            </figure>
 
-          <a class="template tilt magnetic reveal"
-            href="templates/uslugi.html" target="_blank" rel="noopener noreferrer"
-            aria-label="Otwórz demo: Usługi lokalne">
-            <img src="https://cdn.prod.website-files.com/64de12e2b7dad0d3dd226b9a/663cf39e84dbc946d84adce0_cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTExL2ZsNTAyMTEwMzU4MjgtaW1hZ2UuanBn.png" alt="" aria-hidden="true">
-            <div class="inner"><h3>Usługi lokalne</h3><span class="btn-demo">Zobacz demo →</span></div>
-          </a>
-
-          <a class="template tilt magnetic reveal"
-            href="templates/restauracja.html" target="_blank" rel="noopener noreferrer"
-            aria-label="Otwórz demo: Restauracja">
-            <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
-            <div class="inner"><h3>Restauracja</h3><span class="btn-demo">Zobacz demo →</span></div>
-          </a>
-
-          <a class="template tilt magnetic reveal"
-            href="templates/sklep.html" target="_blank" rel="noopener noreferrer"
-            aria-label="Otwórz demo: Sklep internetowy">
-            <img src="https://images.unsplash.com/photo-1543087903-1ac2ec7aa8c5?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
-            <div class="inner"><h3>Sklep internetowy</h3><span class="btn-demo">Zobacz demo →</span></div>
-          </a>
-
-          <a class="template tilt magnetic reveal"
-            href="templates/portfolio.html" target="_blank" rel="noopener noreferrer"
-            aria-label="Otwórz demo: Portfolio">
-            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
-            <div class="inner"><h3>Portfolio</h3><span class="btn-demo">Zobacz demo →</span></div>
-          </a>
-
-          <a class="template tilt magnetic reveal"
-            href="templates/korporacja.html" target="_blank" rel="noopener noreferrer"
-            aria-label="Otwórz demo: Firma / korporacja">
-            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
-            <div class="inner"><h3>Firma / korporacja</h3><span class="btn-demo">Zobacz demo →</span></div>
-          </a>
+            <figure class="cmp-view show-after">
+              <img src="https://www.dropbox.com/scl/fi/tur0drn8e5i4kbudic6r2/po.png?rlkey=i7vu46b6sh3i68xuxzk0j19ba&st=9ncvphk3&dl=1"
+                   alt="Zrzut ekranu nowej strony — po redesignie" loading="lazy" decoding="async">
+              <figcaption>Po: lekka, dostępna, nastawiona na konwersję.</figcaption>
+            </figure>
+          </div>
         </div>
       </div>
     </section>
+
+<!-- SZABLONY / DEMO -->
+<section id="templates" class="templates" aria-label="Dema szablonów">
+  <div class="container">
+    <h2 class="section-h reveal-text">Szablony — Dema live</h2>
+    <p class="section-p reveal-text">Kliknij, aby otworzyć demo w nowej karcie.</p>
+
+    <div class="grid">
+      <a class="template tilt magnetic reveal"
+         href="templates/blog.html" target="_blank" rel="noopener noreferrer"
+         aria-label="Otwórz demo: Blog podróżniczy">
+        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
+        <div class="inner"><h3>Blog podróżniczy</h3><span class="btn-demo">Zobacz demo →</span></div>
+      </a>
+
+      <a class="template tilt magnetic reveal"
+         href="templates/uslugi.html" target="_blank" rel="noopener noreferrer"
+         aria-label="Otwórz demo: Usługi lokalne">
+        <img src="https://cdn.prod.website-files.com/64de12e2b7dad0d3dd226b9a/663cf39e84dbc946d84adce0_cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTExL2ZsNTAyMTEwMzU4MjgtaW1hZ2UuanBn.png" alt="" aria-hidden="true">
+        <div class="inner"><h3>Usługi lokalne</h3><span class="btn-demo">Zobacz demo →</span></div>
+      </a>
+
+      <a class="template tilt magnetic reveal"
+         href="templates/restauracja.html" target="_blank" rel="noopener noreferrer"
+         aria-label="Otwórz demo: Restauracja">
+        <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
+        <div class="inner"><h3>Restauracja</h3><span class="btn-demo">Zobacz demo →</span></div>
+      </a>
+
+      <a class="template tilt magnetic reveal"
+         href="templates/sklep.html" target="_blank" rel="noopener noreferrer"
+         aria-label="Otwórz demo: Sklep internetowy">
+        <img src="https://images.unsplash.com/photo-1543087903-1ac2ec7aa8c5?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
+        <div class="inner"><h3>Sklep internetowy</h3><span class="btn-demo">Zobacz demo →</span></div>
+      </a>
+
+      <a class="template tilt magnetic reveal"
+         href="templates/portfolio.html" target="_blank" rel="noopener noreferrer"
+         aria-label="Otwórz demo: Portfolio">
+        <img src="https://images.pexels.com/photos/1264210/pexels-photo-1264210.jpeg" alt="" aria-hidden="true">
+        <div class="inner"><h3>Portfolio</h3><span class="btn-demo">Zobacz demo →</span></div>
+      </a>
+
+      <a class="template tilt magnetic reveal"
+         href="templates/korporacja.html" target="_blank" rel="noopener noreferrer"
+         aria-label="Otwórz demo: Firma / korporacja">
+        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop" alt="" aria-hidden="true">
+        <div class="inner"><h3>Firma / korporacja</h3><span class="btn-demo">Zobacz demo →</span></div>
+      </a>
+
+      <!-- NOWE: Web App / SaaS -->
+      <a class="template tilt magnetic reveal"
+         href="templates/webAPP.html" target="_blank" rel="noopener noreferrer"
+         aria-label="Otwórz demo: Web App / SaaS">
+        <img src="https://www.techfunnel.com/wp-content/uploads/2021/10/web-application.png" alt="" aria-hidden="true">
+        <div class="inner"><h3>Web App / SaaS</h3><span class="btn-demo">Zobacz demo →</span></div>
+      </a>
+    </div>
+  </div>
+</section>
 
     <!-- O nas -->
     <section id="onas" class="about" aria-label="O nas">
@@ -411,14 +509,6 @@
   <!-- Scripts -->
   <script src="main.js" defer></script>
   <script src="i18n.js" defer></script>
-  <script>
-    /* Klik w 🌐 EN = szybki switch na EN (hak do i18n.js – wywołujemy to samo co przycisk EN) */
-    document.addEventListener('DOMContentLoaded', () => {
-      const globe = document.getElementById('langGlobe');
-      const enBtn = document.querySelector('.lang-btn[data-lang="en"]');
-      if (globe && enBtn) globe.addEventListener('click', () => enBtn.click());
-    });
-  </script>
 
   <!-- Dane strukturalne -->
   <script type="application/ld+json">

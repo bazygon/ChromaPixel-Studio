@@ -259,3 +259,63 @@ footer{background:var(--dark-alt);border-top:1px solid var(--glass-border);paddi
 @media (max-width: 1350px){
   nav { padding: 1rem 1.25rem; }
 }
+
+/* === CASE STUDY / KPI === */
+.case{ padding:6rem 1.5rem; }
+.kpi-grid{
+  display:grid; gap:1rem;
+  grid-template-columns:repeat(4,minmax(160px,1fr));
+  margin:1rem 0 2rem;
+}
+.kpi-card{
+  background:var(--dark-card);
+  border:1px solid var(--glass-border);
+  border-radius:18px; padding:1.25rem;
+  text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+.kpi-num{
+  font-weight:900; font-size:clamp(1.8rem,4.2vw,2.6rem);
+  background:var(--neon); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  line-height:1; margin-bottom:.25rem;
+}
+.kpi-label{ font-weight:700; }
+.kpi-sub{ color:var(--text-muted); display:block; margin-top:.35rem; }
+
+/* === PORÓWNANIE PRZED/PO === */
+.compare{
+  background:var(--dark-card); border:1px solid var(--glass-border);
+  border-radius:18px; padding:1rem; overflow:hidden;
+}
+.compare-toolbar{
+  display:flex; gap:.5rem; justify-content:center; margin-bottom:.75rem;
+}
+.cmp-btn{
+  border:1px solid var(--glass-border);
+  background:var(--glass); color:#fff; font-weight:800;
+  padding:.55rem 1rem; border-radius:999px; cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.cmp-btn.is-active{ background:var(--primary); box-shadow:var(--shadow-primary); }
+.cmp-btn:hover{ transform:translateY(-1px); }
+
+.compare-stage{ position:relative; }
+.cmp-view{ display:none; }
+.cmp-view.active{ display:block; }
+.cmp-view img{
+  width:100%; height:auto; display:block; border-radius:12px; border:1px solid var(--glass-border);
+}
+.cmp-view figcaption{
+  color:var(--text-muted); font-size:.9rem; text-align:center; margin-top:.5rem;
+}
+
+/* Desktop: pokazuj PRZED i PO obok siebie, bez przycisków */
+@media (min-width: 900px){
+  .compare-toolbar{ display:none; }
+  .compare-stage{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .cmp-view{ display:block; }
+  .cmp-view.active{ display:block; } /* bez znaczenia na desktopie – zawsze 2 kolumny */
+}
+
+/* Responsywność KPI */
+@media (max-width: 1000px){ .kpi-grid{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width: 520px){ .kpi-grid{ grid-template-columns:1fr; } }
