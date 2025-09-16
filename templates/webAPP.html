@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>IndustryOS Pro — Kompletny System Zarządzania Produkcją | DEMO</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root{
+            --primary:#0ea5e9; --primary-dark:#0284c7;
+            --success:#10b981; --warning:#f59e0b; --danger:#ef4444; --purple:#8b5cf6;
+            --dark:#0f172a; --dark-light:#1e293b; --glass:rgba(15,23,42,.8);
+            --text:#e2e8f0; --text-dim:#94a3b8;
+        }
+        html,body{height:100%;}
+        body{
+            font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+            background:#000; color:var(--text); overflow-x:hidden; position:relative; min-height:100vh;
+        }
+
+        /* Animated Gradient Background */
+        #animatedBg{position:fixed; inset:0; z-index:-2;
+            background:linear-gradient(45deg,#000428,#004e92,#000428);
+            background-size:400% 400%; animation:gradientShift 15s ease infinite;
+        }
+        @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+        /* Particle Canvas */
+        #particleCanvas{position:fixed; inset:0; z-index:-1; opacity:.5;}
+
+        /* Loading Screen */
+        .loading-screen{position:fixed; inset:0; background:var(--dark); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10000; transition:opacity .5s;}
+        .loading-screen.hidden{opacity:0; pointer-events:none;}
+        .loader{width:80px;height:80px;border:4px solid var(--dark-light);border-top:4px solid var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:1rem}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        /* Header */
+        .header{
+            background:var(--glass);
+            backdrop-filter:blur(20px);
+            -webkit-backdrop-filter:blur(20px);
+            border-bottom:1px solid rgba(255,255,255,.1);
+            position:sticky; top:0; z-index:1000; padding:1rem 2rem;
+        }
+        .header-content{max-width:1600px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:1rem;}
+        .logo{display:flex; align-items:center; gap:1rem; font-size:1.4rem; font-weight:800; letter-spacing:.2px}
+        .logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--primary),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;animation:logoFloat 3s ease-in-out infinite}
+        @keyframes logoFloat{50%{transform:translateY(-5px)}}
+        .header-stats{display:flex; gap:2rem; align-items:center; flex-wrap:wrap}
+        .header-stat{display:flex; flex-direction:column; align-items:flex-end}
+        .header-stat-value{font-size:1.1rem;font-weight:800;color:var(--primary)}
+        .header-stat-label{font-size:.75rem;color:var(--text-dim)}
+        .demo-badge{background:linear-gradient(135deg,var(--warning),var(--danger));color:#fff;padding:.5rem 1rem;border-radius:999px;font-weight:800; animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{transform:scale(1); box-shadow:0 0 0 0 rgba(245,158,11,.7)} 50%{transform:scale(1.05); box-shadow:0 0 0 12px rgba(245,158,11,0)}}
+
+        /* Navigation Tabs */
+        .nav-tabs{background:var(--dark-light); padding:.5rem 2rem; border-bottom:1px solid rgba(255,255,255,.05); position:sticky; top:73px; z-index:999;}
+        .nav-tabs-content{max-width:1600px; margin:0 auto; display:flex; gap:.5rem; overflow-x:auto; scrollbar-width:none}
+        .nav-tab{background:transparent;color:var(--text-dim); border:1px solid transparent; padding:.65rem 1.1rem; border-radius:12px; cursor:pointer; transition:.25s; white-space:nowrap; display:flex; align-items:center; gap:.5rem; font-size:.92rem}
+        .nav-tab:hover{background:rgba(14,165,233,.1); border-color:rgba(14,165,233,.3)}
+        .nav-tab.active{background:var(--primary); color:#fff; border-color:var(--primary)}
+
+        /* Container */
+        .container{max-width:1600px; margin:0 auto; padding:2rem;}
+
+        /* Stats Grid */
+        .stats-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.2rem; margin-bottom:1.5rem;}
+        .stat-card{
+            background:var(--glass);
+            backdrop-filter:blur(10px);
+            -webkit-backdrop-filter:blur(10px);
+            border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:1.2rem;
+            position:relative; overflow:hidden; cursor:pointer; transition:.25s
+        }
+        .stat-card:hover{transform:translateY(-4px); border-color:var(--primary); box-shadow:0 20px 40px rgba(14,165,233,.2)}
+        .stat-card::before{content:""; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--primary),var(--purple)); transform:scaleX(0); transition:transform .25s}
+        .stat-card:hover::before{transform:scaleX(1)}
+        .stat-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--primary),var(--primary-dark)); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:.8rem}
+        .stat-value{
+            font-size:2.2rem; font-weight:900; margin-bottom:.25rem;
+            background:linear-gradient(135deg,var(--text),var(--primary));
+            /* ✅ kompatybilność gradientowego tekstu */
+            background-clip:text;                 /* standard */
+            -webkit-background-clip:text;         /* WebKit/Blink */
+            color:transparent;                     /* standard fallback */
+            -webkit-text-fill-color:transparent;   /* Safari */
+        }
+        .stat-label{color:var(--text-dim); font-size:.92rem; margin-bottom:.5rem}
+        .stat-change{display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .6rem; border-radius:999px; font-size:.78rem; font-weight:700}
+        .stat-change.positive{background:rgba(16,185,129,.2); color:var(--success)}
+        .stat-change.negative{background:rgba(239,68,68,.2); color:var(--danger)}
+
+        /* Main Layout */
+        .main-content{display:grid; grid-template-columns:1fr 360px; gap:1.5rem; margin-bottom:2rem;}
+
+        /* Section Card & Charts */
+        .section-card{
+            background:var(--glass);
+            backdrop-filter:blur(10px);
+            -webkit-backdrop-filter:blur(10px);
+            border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:1.2rem; position:relative
+        }
+        .section-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem}
+        .section-title{font-size:1.1rem; font-weight:800; display:flex; align-items:center; gap:.5rem}
+        .chart-container{background:var(--dark-light); border-radius:15px; padding:1rem; margin-top:1rem; position:relative}
+        .chart-title{font-size:1rem; font-weight:700; margin-bottom:.5rem}
+
+        /* Machine List */
+        .machine-grid{display:grid; gap:.8rem; max-height:500px; overflow-y:auto; padding-right:.4rem}
+        .machine-grid::-webkit-scrollbar{width:6px}
+        .machine-grid::-webkit-scrollbar-thumb{background:var(--primary); border-radius:3px}
+        .machine-card{background:var(--dark-light); border:1px solid rgba(255,255,255,.05); border-radius:14px; padding:1rem; display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:1rem; cursor:pointer; transition:.25s}
+        .machine-card:hover{background:rgba(14,165,233,.08); border-color:var(--primary); transform:translateX(3px)}
+        .machine-status{width:12px;height:12px;border-radius:50%; position:relative}
+        .machine-status::after{content:""; position:absolute; inset:-4px; border-radius:50%; background:inherit; opacity:.3; animation:statusPulse 2s infinite}
+        @keyframes statusPulse{50%{transform:scale(1.5); opacity:0}}
+        .status-online{background:var(--success)} .status-warning{background:var(--warning)} .status-danger{background:var(--danger)} .status-offline{background:var(--text-dim)}
+        .machine-info h4{font-size:1rem;margin-bottom:.15rem}
+        .machine-info p{font-size:.8rem;color:var(--text-dim)}
+        .machine-metrics{display:flex; gap:1rem; align-items:center}
+        .machine-metric{text-align:center}
+        .metric-value{font-size:1.1rem; font-weight:800}
+        .metric-label{font-size:.65rem; color:var(--text-dim); text-transform:uppercase}
+
+        /* Alerts Panel */
+        .alerts-panel{max-height:600px; overflow-y:auto}
+        .alert-card{background:var(--dark-light); border-radius:15px; padding:1rem; margin-bottom:.8rem; border-left:4px solid; cursor:pointer; transition:.25s; animation:slideIn .4s ease}
+        @keyframes slideIn{from{opacity:0; transform:translateX(16px)} to{opacity:1; transform:translateX(0)}}
+        .alert-card:hover{transform:translateX(-3px)}
+        .alert-critical{border-color:var(--danger); background:linear-gradient(90deg,rgba(239,68,68,.1),transparent)}
+        .alert-warning{border-color:var(--warning); background:linear-gradient(90deg,rgba(245,158,11,.1),transparent)}
+        .alert-info{border-color:var(--primary); background:linear-gradient(90deg,rgba(14,165,233,.1),transparent)}
+        .alert-success{border-color:var(--success); background:linear-gradient(90deg,rgba(16,185,129,.1),transparent)}
+        .alert-header{display:flex; justify-content:space-between; margin-bottom:.35rem}
+        .alert-title{font-weight:800; display:flex; align-items:center; gap:.5rem}
+        .alert-time{font-size:.75rem; color:var(--text-dim)}
+        .alert-message{font-size:.86rem; color:var(--text-dim); line-height:1.4}
+
+        /* Control Panel */
+        .control-panel{
+            background:var(--glass);
+            backdrop-filter:blur(10px);
+            -webkit-backdrop-filter:blur(10px);
+            border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:1.2rem; margin-bottom:1.5rem
+        }
+        .control-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem}
+        .control-btn{background:var(--dark-light); border:1px solid rgba(255,255,255,.1); color:var(--text); padding:1rem; border-radius:15px; cursor:pointer; transition:.25s; display:flex; flex-direction:column; align-items:center; gap:.4rem; position:relative; overflow:hidden}
+        .control-btn:hover{background:rgba(14,165,233,.08); border-color:var(--primary); transform:translateY(-2px)}
+        .control-btn.active{background:var(--primary); border-color:var(--primary)}
+        .control-btn .kbd{font-size:.65rem; color:var(--text-dim); padding:.1rem .4rem; border:1px solid rgba(255,255,255,.12); border-radius:6px}
+
+        /* Orders Table */
+        .orders-actions{display:flex; gap:.6rem; flex-wrap:wrap; margin:.6rem 0}
+        .input, select{background:#0b1222; border:1px solid rgba(255,255,255,.1); color:var(--text); padding:.6rem .7rem; border-radius:10px; outline:none}
+        .input::placeholder{color:#8aa}
+        .btn{background:var(--primary); border:1px solid var(--primary); color:#fff; padding:.65rem .9rem; border-radius:12px; cursor:pointer; font-weight:800; transition:.2s}
+        .btn.secondary{background:#0b1222; border-color:rgba(255,255,255,.12); color:var(--text)}
+        .btn.danger{background:var(--danger); border-color:var(--danger)}
+        .btn:disabled{opacity:.5; cursor:not-allowed}
+        table.orders-table{width:100%; border-collapse:collapse; margin-top:.5rem}
+        .orders-table th{background:var(--dark-light); padding:.8rem 1rem; text-align:left; font-size:.85rem; color:var(--text-dim); border-bottom:1px solid rgba(255,255,255,.08); position:sticky; top:0}
+        .orders-table td{padding:.85rem 1rem; border-bottom:1px solid rgba(255,255,255,.05); font-size:.92rem}
+        .orders-table tr:hover{background:rgba(14,165,233,.05)}
+        .order-status{display:inline-block; padding:.25rem .6rem; border-radius:999px; font-size:.75rem; font-weight:700}
+        .completed{background:rgba(16,185,129,.2); color:var(--success)}
+        .processing{background:rgba(14,165,233,.2); color:var(--primary)}
+        .pending{background:rgba(245,158,11,.2); color:var(--warning)}
+
+        /* Modal */
+        .modal{display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:5000; animation:fadeIn .25s}
+        .modal.active{display:flex; align-items:center; justify-content:center}
+        @keyframes fadeIn{from{opacity:0} to{opacity:1}}
+        .modal-content{background:var(--dark-light); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:1.5rem; max-width:720px; width:92%; max-height:85vh; overflow-y:auto; animation:slideUp .25s}
+        @keyframes slideUp{from{transform:translateY(30px); opacity:0} to{transform:translateY(0); opacity:1}}
+        .modal-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem}
+        .modal-title{font-size:1.35rem; font-weight:900}
+        .modal-close{background:transparent; border:none; color:var(--text-dim); font-size:1.5rem; cursor:pointer; transition:.2s}
+        .modal-close:hover{color:var(--text)}
+
+        /* Toast */
+        .toast{position:fixed; bottom:2rem; right:-420px; background:var(--dark-light); border:1px solid rgba(255,255,255,.1); border-left:4px solid var(--primary); border-radius:15px; padding:1rem 1.2rem; display:flex; align-items:center; gap:1rem; min-width:300px; box-shadow:0 10px 30px rgba(0,0,0,.5); transition:right .45s ease; z-index:6000}
+        .toast.show{right:2rem}
+        .toast.success{border-left-color:var(--success)} .toast.error{border-left-color:var(--danger)} .toast.warning{border-left-color:var(--warning)}
+        .toast-icon{font-size:1.4rem}
+        .toast-content h4{font-size:.95rem; margin-bottom:.15rem}
+        .toast-content p{font-size:.82rem; color:var(--text-dim)}
+
+        /* 3D */
+        #visualization3D{width:100%; height:420px; border-radius:15px; overflow:hidden; background:var(--dark-light); position:relative; margin-top:1rem}
+        .legend{display:flex; gap:.6rem; flex-wrap:wrap; font-size:.82rem; color:var(--text-dim)}
+        .legend span{display:inline-flex; align-items:center; gap:.35rem}
+        .legend i{display:inline-block; width:10px; height:10px; border-radius:50%}
+
+        /* Responsive */
+        @media (max-width:1200px){ .main-content{grid-template-columns:1fr} .header-stats{display:none} }
+        @media (max-width:768px){ .stats-grid{grid-template-columns:1fr} .control-grid{grid-template-columns:1fr 1fr} .container{padding:1rem} }
+
+        /* Helpers */
+        .mt-1{margin-top:.5rem} .mt-2{margin-top:1rem} .mt-3{margin-top:1.5rem}
+        .row{display:flex; gap:.6rem; flex-wrap:wrap}
+        .tag{padding:.18rem .5rem; border:1px solid rgba(255,255,255,.12); border-radius:999px; font-size:.72rem; color:var(--text-dim)}
+        .divider{height:1px; background:rgba(255,255,255,.08); margin:.8rem 0}
+        .muted{color:var(--text-dim)}
+        .right{margin-left:auto}
+        .kbd{font-size:.75rem;border:1px solid rgba(255,255,255,.2); padding:.1rem .35rem; border-radius:6px; color:var(--text-dim)}
+        .pill{background:rgba(14,165,233,.12); color:var(--primary); padding:.2rem .55rem; border-radius:999px; font-size:.75rem; font-weight:800}
+        .danger-txt{color:var(--danger)}
+        .btn.small{padding:.45rem .7rem; border-radius:10px; font-size:.85rem}
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div id="animatedBg"></div>
+    <canvas id="particleCanvas" aria-hidden="true"></canvas>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen" role="status" aria-live="polite">
+        <div class="loader" aria-hidden="true"></div>
+        <h2>Ładowanie systemu IndustryOS Pro</h2>
+        <p class="muted mt-1">Inicjalizacja modułów…</p>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo" aria-label="IndustryOS Pro">
+                <div class="logo-icon">🚀</div>
+                <span>IndustryOS Pro</span>
+            </div>
+
+            <div class="header-stats" aria-label="Szybkie metryki">
+                <div class="header-stat">
+                    <div class="header-stat-value" id="globalEfficiency">98.7%</div>
+                    <div class="header-stat-label">Wydajność Globalna</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value" id="activeOrders">247</div>
+                    <div class="header-stat-label">Aktywne Zamówienia</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value" id="systemUptime">99.9%</div>
+                    <div class="header-stat-label">Dostępność Systemu</div>
+                </div>
+            </div>
+
+            <div class="demo-badge" title="Wersja demonstracyjna">
+                🔥 WERSJA DEMO — PEŁNA FUNKCJONALNOŚĆ
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" aria-label="Nawigacja modułów">
+        <div class="nav-tabs-content">
+            <button class="nav-tab active" onclick="switchTab('dashboard', this)" aria-selected="true">📊 Dashboard</button>
+            <button class="nav-tab" onclick="switchTab('production', this)">⚙️ Produkcja</button>
+            <button class="nav-tab" onclick="switchTab('machines', this)">🖥️ Maszyny i Serwery</button>
+            <button class="nav-tab" onclick="switchTab('orders', this)">📦 Zamówienia</button>
+            <button class="nav-tab" onclick="switchTab('analytics', this)">📈 Analityka AI</button>
+            <button class="nav-tab" onclick="switchTab('maintenance', this)">🔧 Konserwacja</button>
+            <button class="nav-tab" onclick="switchTab('reports', this)">📑 Raporty</button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Dashboard -->
+        <div id="dashboard-content" class="tab-content">
+            <!-- KPI Cards -->
+            <div class="stats-grid" id="kpiGrid">
+                <div class="stat-card" onclick="showDetailModal('efficiency')">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-value" id="efficiencyValue">94.2%</div>
+                    <div class="stat-label">Wydajność Produkcji</div>
+                    <div class="stat-change positive">↑ 2.4% od wczoraj</div>
+                </div>
+
+                <div class="stat-card" onclick="showDetailModal('machines')">
+                    <div class="stat-icon">🖥️</div>
+                    <div class="stat-value" id="machinesValue">42/48</div>
+                    <div class="stat-label">Aktywne Maszyny</div>
+                    <div class="stat-change positive">↑ 6 więcej niż rano</div>
+                </div>
+
+                <div class="stat-card" onclick="showDetailModal('temperature')">
+                    <div class="stat-icon">🌡️</div>
+                    <div class="stat-value" id="tempValue">38°C</div>
+                    <div class="stat-label">Średnia Temperatura</div>
+                    <div class="stat-change positive">↓ 2°C optymalna</div>
+                </div>
+
+                <div class="stat-card" onclick="showDetailModal('production')">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-value" id="productionValue">1 247</div>
+                    <div class="stat-label">Jednostek/Godzinę</div>
+                    <div class="stat-change positive">↑ 124 ponad cel</div>
+                </div>
+
+                <div class="stat-card" onclick="showDetailModal('quality')">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="qualityValue">99.7%</div>
+                    <div class="stat-label">Wskaźnik Jakości</div>
+                    <div class="stat-change positive">↑ 0.2% poprawa</div>
+                </div>
+
+                <div class="stat-card" onclick="showDetailModal('oee')">
+                    <div class="stat-icon">🧩</div>
+                    <div class="stat-value" id="oeeValue">87.5%</div>
+                    <div class="stat-label">OEE (A×P×Q)</div>
+                    <div class="stat-change positive">↑ 0.8 p.p.</div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <!-- Charts -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-title">📈 Trendy produkcyjne</div>
+                        <div class="legend">
+                            <span><i style="background:#3b82f6"></i> Produkcja</span>
+                            <span><i style="background:#10b981"></i> Cel</span>
+                            <span><i style="background:#f59e0b"></i> Przestoje</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-title">Wykonanie vs. Cel (ostatnie 24h)</div>
+                        <canvas id="chartThroughput" height="160" aria-label="Wykres produktywności"></canvas>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="chart-container" style="flex:1">
+                            <div class="chart-title">Struktura OEE</div>
+                            <canvas id="chartOEE" height="160"></canvas>
+                        </div>
+                        <div class="chart-container" style="flex:1">
+                            <div class="chart-title">Status zamówień</div>
+                            <canvas id="chartOrders" height="160"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container mt-2">
+                        <div class="chart-title">Powody przestojów (7 dni)</div>
+                        <canvas id="chartDowntime" height="140"></canvas>
+                    </div>
+
+                    <div class="chart-container mt-2">
+                        <div class="chart-title">Wizualizacja 3D parku maszyn</div>
+                        <div id="visualization3D" role="img" aria-label="Mapa 3D maszyn"></div>
+                        <div class="legend mt-1">
+                            <span><i style="background:#10b981"></i> ONLINE</span>
+                            <span><i style="background:#f59e0b"></i> OSTRZEŻENIE</span>
+                            <span><i style="background:#ef4444"></i> AWARIA</span>
+                            <span><i style="background:#94a3b8"></i> OFFLINE</span>
+                        </div>
+                    </div>
+
+                    <div class="control-panel mt-2" aria-label="Sterowanie produkcją">
+                        <div class="section-title">🎛️ Panel sterowania</div>
+                        <div class="control-grid mt-1">
+                            <button class="control-btn" id="btnStart" onclick="controls.start()">
+                                <div class="control-btn-icon">▶️</div>
+                                <div class="control-btn-label">Start linii</div>
+                                <div class="kbd">S</div>
+                            </button>
+                            <button class="control-btn" id="btnPause" onclick="controls.pause()">
+                                <div class="control-btn-icon">⏸️</div>
+                                <div class="control-btn-label">Pauza</div>
+                                <div class="kbd">P</div>
+                            </button>
+                            <button class="control-btn" id="btnEStop" onclick="controls.eStop()">
+                                <div class="control-btn-icon">🛑</div>
+                                <div class="control-btn-label">Awaryjne STOP</div>
+                                <div class="kbd">E</div>
+                            </button>
+                            <button class="control-btn" id="btnOptimize" onclick="controls.optimize()">
+                                <div class="control-btn-icon">🧠</div>
+                                <div class="control-btn-label">Auto-optymalizacja</div>
+                                <div class="kbd">O</div>
+                            </button>
+                            <button class="control-btn" id="btnSimFail" onclick="controls.simulateFailure()">
+                                <div class="control-btn-icon">⚠️</div>
+                                <div class="control-btn-label">Symuluj awarię</div>
+                                <div class="kbd">F</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerts -->
+                <aside class="section-card">
+                    <div class="section-header">
+                        <div class="section-title">🚨 Alerty w czasie rzeczywistym</div>
+                        <button class="btn small secondary" onclick="addInfoAlert()">Dodaj alert INFO</button>
+                    </div>
+                    <div class="alerts-panel" id="alertsPanel" aria-live="polite"></div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- Produkcja -->
+        <div id="production-content" class="tab-content" hidden>
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">⚙️ Plany produkcyjne (Horyzont 7 dni)</div>
+                    <span class="pill" id="prodPlanSummary">Łącznie: 0 zleceń</span>
+                </div>
+                <div class="orders-actions">
+                    <input class="input" id="prodSearch" placeholder="Szukaj po numerze/przedmiocie…" oninput="renderProduction()"/>
+                    <select id="prodFilter" class="input" onchange="renderProduction()">
+                        <option value="">Status: wszystkie</option>
+                        <option value="pending">Oczekujące</option>
+                        <option value="processing">W toku</option>
+                        <option value="completed">Zakończone</option>
+                    </select>
+                    <button class="btn" onclick="openOrderModal()">+ Nowe zlecenie</button>
+                    <button class="btn secondary" onclick="bulkStart()">Uruchom wybrane</button>
+                    <button class="btn danger" onclick="bulkCancel()">Anuluj wybrane</button>
+                </div>
+                <table class="orders-table" id="prodTable" aria-label="Tabela planów produkcyjnych">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="bulkAll" onchange="toggleAll(this, 'prod')"></th>
+                            <th># Zlecenia</th><th>Produkt</th><th>Ilość</th><th>Linia</th><th>Termin</th><th>Status</th><th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prodTbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Maszyny -->
+        <div id="machines-content" class="tab-content" hidden>
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">🖥️ Park maszynowy</div>
+                    <div class="row right">
+                        <input class="input" id="machineSearch" placeholder="Szukaj maszyny…" oninput="renderMachines"/>
+                        <select class="input" id="machineFilter" onchange="renderMachines()">
+                            <option value="">Status: wszystkie</option>
+                            <option value="online">Online</option>
+                            <option value="warning">Ostrzeżenie</option>
+                            <option value="danger">Awaria</option>
+                            <option value="offline">Offline</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="machine-grid" id="machineGrid"></div>
+            </div>
+        </div>
+
+        <!-- Zamówienia -->
+        <div id="orders-content" class="tab-content" hidden>
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">📦 Zamówienia i sprzedaż (CRM)</div>
+                    <span class="pill" id="crmSummary">Klienci: 0 • Zamówienia: 0</span>
+                </div>
+                <div class="orders-actions">
+                    <input class="input" id="crmSearch" placeholder="Szukaj po kliencie/numerze…" oninput="renderOrders()"/>
+                    <select class="input" id="crmStatus" onchange="renderOrders()">
+                        <option value="">Status: wszystkie</option>
+                        <option value="pending">Oczekujące</option>
+                        <option value="processing">W realizacji</option>
+                        <option value="completed">Zakończone</option>
+                    </select>
+                    <select class="input" id="crmSource" onchange="renderOrders()">
+                        <option value="">Źródło: wszystkie</option>
+                        <option>WWW</option><option>Telefon</option><option>E-mail</option><option>Partner</option>
+                    </select>
+                    <button class="btn" onclick="openOrderModal()">+ Dodaj zamówienie</button>
+                </div>
+                <table class="orders-table" id="crmTable" aria-label="Tabela zamówień CRM">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Klient</th><th>Produkt</th><th>Ilość</th><th>Źródło</th><th>Wartość</th><th>Status</th><th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="crmTbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analityka AI -->
+        <div id="analytics-content" class="tab-content" hidden>
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">🧠 Analityka i predykcja</div>
+                    <div class="row right">
+                        <button class="btn secondary" onclick="simulateForecast()">Symuluj prognozę</button>
+                        <button class="btn" onclick="applyAIOptim()">Zastosuj rekomendacje AI</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="chart-container" style="flex:1">
+                        <div class="chart-title">Prognoza wydajności (48h)</div>
+                        <canvas id="chartForecast" height="160"></canvas>
+                    </div>
+                    <div class="chart-container" style="flex:1">
+                        <div class="chart-title">Ryzyko awarii (najbliższe 72h)</div>
+                        <canvas id="chartRisk" height="160"></canvas>
+                    </div>
+                </div>
+
+                <div class="section-card mt-2">
+                    <div class="section-header">
+                        <div class="section-title">📋 Rekomendacje AI</div>
+                        <button class="btn small secondary" onclick="refreshRecommendations()">Odśwież</button>
+                    </div>
+                    <ul id="aiList">
+                        <!-- dynamicznie -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Konserwacja -->
+        <div id="maintenance-content" class="tab-content" hidden>
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">🔧 Zgłoszenia i przeglądy</div>
+                    <button class="btn" onclick="openTicketModal()">+ Nowe zgłoszenie</button>
+                </div>
+
+                <div class="orders-actions">
+                    <select class="input" id="mtFilter" onchange="renderMaintenance()">
+                        <option value="">Typ: wszystkie</option>
+                        <option>Awaria</option><option>Przegląd</option><option>Kalibracja</option><option>Modernizacja</option>
+                    </select>
+                    <select class="input" id="mtStatus" onchange="renderMaintenance()">
+                        <option value="">Status: wszystkie</option>
+                        <option>Nowe</option><option>W toku</option><option>Zamknięte</option>
+                    </select>
+                </div>
+
+                <table class="orders-table" aria-label="Tabela zgłoszeń serwisowych">
+                    <thead><tr><th>#</th><th>Maszyna</th><th>Typ</th><th>Opis</th><th>Priorytet</th><th>Status</th><th>Akcje</th></tr></thead>
+                    <tbody id="mtTbody"></tbody>
+                </table>
+
+                <div class="section-card mt-2">
+                    <div class="section-header">
+                        <div class="section-title">🧰 Magazyn części</div>
+                        <button class="btn small secondary" onclick="replenishParts()">Uzupełnij stany</button>
+                    </div>
+                    <table class="orders-table" aria-label="Magazyn części zamiennych">
+                        <thead><tr><th>Kod</th><th>Nazwa</th><th>Stan</th><th>Min.</th><th>Akcje</th></tr></thead>
+                        <tbody id="partsTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Raporty -->
+        <div id="reports-content" class="tab-content" hidden>
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">📑 Raporty i eksport danych</div>
+                    <div class="row right">
+                        <input type="date" class="input" id="repFrom">
+                        <input type="date" class="input" id="repTo">
+                        <button class="btn secondary" onclick="generatePreview()">Podgląd</button>
+                        <button class="btn" onclick="exportCSV()">Eksport CSV</button>
+                        <button class="btn" onclick="exportJSON()">Eksport JSON</button>
+                    </div>
+                </div>
+                <div id="reportPreview" class="mt-1">
+                    <p class="muted">Wybierz zakres dat i kliknij <b>Podgląd</b>.</p>
+                </div>
+                <div class="divider"></div>
+                <div class="row">
+                    <button class="btn danger" onclick="resetDemo()">Ustawienia → Reset demo</button>
+                    <span class="muted" style="align-self:center">Zresetuje wszystkie dane zapisane lokalnie.</span>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- /container -->
+
+    <!-- Modal (generic) -->
+    <div class="modal" id="modalRoot" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Szczegóły</div>
+                <button class="modal-close" aria-label="Zamknij" onclick="closeModal()">✖</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <div class="toast-icon" id="toastIcon">ℹ️</div>
+        <div class="toast-content">
+            <h4 id="toastTitle">Komunikat</h4>
+            <p id="toastMsg">Treść komunikatu</p>
+        </div>
+    </div>
+
+<script>
+/* ========= Utility ========= */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const fmt = n => n.toLocaleString('pl-PL');
+const r = (min,max) => Math.random()*(max-min)+min;
+const ri = (min,max) => Math.floor(r(min,max+1));
+const pick = arr => arr[ri(0,arr.length-1)];
+const nowISO = () => new Date().toISOString();
+
+/* ========= State & Persistence ========= */
+const STORAGE_KEY = 'industryOSProState';
+const defaultState = ()=>({
+  settings:{ running:true, lastInit: nowISO() },
+  kpis:{ efficiency:94.2, activeMachines:42, totalMachines:48, temp:38, throughput:1247, quality:99.7, oee:87.5 },
+  orders:[ /* CRM + produkcja */
+    { id:'ZAM-1001', client:'TechNova Sp. z o.o.', product:'Filtr kompozytowy F-200', qty:500, source:'WWW', value:75000, status:'processing', due:'2025-09-25', line:'L1' },
+    { id:'ZAM-1002', client:'GreenLine SA', product:'Panele EKO P-12', qty:220, source:'Partner', value:44000, status:'pending', due:'2025-09-20', line:'L3' },
+    { id:'ZAM-1003', client:'AutoMaxx', product:'Uchwyty U-33', qty:1200, source:'Telefon', value:36000, status:'completed', due:'2025-09-12', line:'L2' }
+  ],
+  machines:[ ...Array.from({length:24}, (_,i)=>({
+      id:'M' + String(i+1).padStart(3,'0'),
+      name:'Maszyna ' + (i+1),
+      model: ['CNC-X','WTR-200','Press-Lite','Laser-PRO'][i%4],
+      status: ['online','online','warning','offline'][i%4],
+      oee: ri(70,95),
+      temp: ri(30,80),
+      load: ri(40,95),
+      lastService: new Date(Date.now()-ri(2,40)*864e5).toISOString().slice(0,10)
+  })) ],
+  alerts:[
+    { id:'AL-1', type:'warning', title:'Podwyższona temperatura', time:'przed chwilą', msg:'Lina L2: średnia 42°C, wentylacja zwiększona.' },
+    { id:'AL-2', type:'info', title:'Zamówienie zrealizowane', time:'5 min temu', msg:'ZAM-1003 zakończone. Wydanie na magazyn.' }
+  ],
+  tickets:[
+    { id:'MT-2001', machine:'M005', type:'Przegląd', desc:'Okresowy przegląd głowicy', prio:'Średni', status:'W toku' },
+    { id:'MT-2002', machine:'M011', type:'Awaria', desc:'Wibracje łożyska', prio:'Wysoki', status:'Nowe' }
+  ],
+  parts:[
+    { code:'BRG-6204', name:'Łożysko 6204', qty:12, min:10 },
+    { code:'BLT-HTD5', name:'Pasek HTD 5M', qty:4, min:6 },
+    { code:'SNS-TMP', name:'Czujnik temperatury', qty:18, min:8 }
+  ],
+  history:{ throughput: Array.from({length:24},()=>ri(900,1300)), target: Array.from({length:24},()=>1100), downtime: { 'SMED':ri(1,6), 'Braki materiału':ri(2,7), 'Przezbrojenia':ri(3,10), 'Awaria':ri(2,8), 'Kontrola jakości':ri(1,4) } }
+});
+
+let state = loadState();
+
+function loadState(){
+  try{ const raw = localStorage.getItem(STORAGE_KEY); return raw? JSON.parse(raw) : defaultState(); }
+  catch{ return defaultState(); }
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+/* ========= Particles BG ========= */
+(function particles(){
+  const canvas = $('#particleCanvas'), ctx = canvas.getContext('2d');
+  let W=canvas.width=window.innerWidth, H=canvas.height=window.innerHeight;
+  let stars = Array.from({length:160}, ()=>({ x:Math.random()*W, y:Math.random()*H, s:Math.random()*2+0.5, v:Math.random()*0.4+0.2 }));
+  function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+  window.addEventListener('resize', resize);
+  (function loop(){
+    ctx.clearRect(0,0,W,H);
+    for(const st of stars){
+      ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.beginPath(); ctx.arc(st.x, st.y, st.s, 0, Math.PI*2); ctx.fill();
+      st.x += st.v; if(st.x>W+5) { st.x = -5; st.y = Math.random()*H; }
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ========= Tabs ========= */
+function switchTab(tab, btn){
+  $$('.nav-tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+  $$('.tab-content').forEach(c=>c.hidden=true);
+  $('#' + tab + '-content').hidden = false;
+  if(tab==='dashboard') { renderDashboard(); }
+  if(tab==='production') { renderProduction(); }
+  if(tab==='machines') { renderMachines(); }
+  if(tab==='orders') { renderOrders(); }
+  if(tab==='analytics') { renderAnalytics(); }
+  if(tab==='maintenance') { renderMaintenance(); }
+  if(tab==='reports') { /* nothing */ }
+}
+
+/* ========= Toast ========= */
+let toastTimer=null;
+function showToast(type='info', title='OK', msg=''){
+  const t = $('#toast');
+  t.classList.remove('success','error','warning');
+  t.classList.add(type==='success'?'success':type==='error'?'error':'warning');
+  $('#toastTitle').textContent = title;
+  $('#toastMsg').textContent = msg;
+  $('#toastIcon').textContent = type==='success'?'✅':type==='error'?'⛔':'⚠️';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'), 3800);
+}
+
+/* ========= Modal ========= */
+function showDetailModal(kind, payload){
+  const root = $('#modalRoot'), body = $('#modalBody'), title = $('#modalTitle');
+  if(kind==='efficiency'){
+    title.textContent = 'Wydajność — szczegóły';
+    body.innerHTML = `
+      <p>Wydajność godzinowa ostatnich 24h vs cel.</p>
+      <div class="chart-container mt-1"><canvas id="modalEff" height="150"></canvas></div>`;
+    root.classList.add('active');
+    setTimeout(()=>new Chart($('#modalEff'), {type:'line',
+      data:{ labels:[...Array(24).keys()].map(h=>h+':00'),
+        datasets:[
+          {label:'Wykonanie', data:state.history.throughput, tension:.3},
+          {label:'Cel', data:state.history.target, borderDash:[6,6], tension:.3}
+        ]},
+      options:{plugins:{legend:{labels:{color:'#cfe'}}}, scales:{x:{ticks:{color:'#9ab'}}, y:{ticks:{color:'#9ab'}}}}}), 50);
+  } else if(kind==='machines'){
+    title.textContent = 'Maszyny — statusy';
+    body.innerHTML = `<ul>${state.machines.slice(0,10).map(m=>`<li>${m.id} • ${m.name} — <b>${m.status.toUpperCase()}</b> (OEE ${m.oee}%)</li>`).join('')}</ul>`;
+    root.classList.add('active');
+  } else if(kind==='temperature'){
+    title.textContent = 'Temperatura — detale';
+    body.innerHTML = `<p>Średnia temperatur: <b>${state.kpis.temp}°C</b>. Chłodzenie automatyczne włączone.</p>`;
+    root.classList.add('active');
+  } else if(kind==='production'){
+    title.textContent = 'Produkcja — detale';
+    body.innerHTML = `<p>Aktualny takt: <b>${fmt(state.kpis.throughput)}</b> j/h. Bufory w normie.</p>`;
+    root.classList.add('active');
+  } else if(kind==='quality'){
+    title.textContent = 'Jakość — wskaźniki';
+    body.innerHTML = `<p>PPM: <b>${ri(120,240)}</b>, reklamacje 30 dni: <b>${ri(0,3)}</b>, FPY: <b>${(state.kpis.quality).toFixed(2)}%</b>.</p>`;
+    root.classList.add('active');
+  } else if(kind==='oee'){
+    title.textContent = 'OEE — składniki';
+    body.innerHTML = `<p>Availability: ${(state.kpis.oee*1.02/1.25).toFixed(1)}% • Performance: ${(state.kpis.oee*1.08/1.25).toFixed(1)}% • Quality: ${state.kpis.quality.toFixed(1)}%</p>`;
+    root.classList.add('active');
+  } else if(kind==='machine'){
+    const m = payload;
+    title.textContent = `${m.name} (${m.id})`;
+    body.innerHTML = `
+      <div class="row">
+        <span class="tag">Model: ${m.model}</span>
+        <span class="tag">Status: ${m.status}</span>
+        <span class="tag">OEE: ${m.oee}%</span>
+        <span class="tag">Obciążenie: ${m.load}%</span>
+        <span class="tag">Temp: ${m.temp}°C</span>
+      </div>
+      <div class="divider"></div>
+      <div class="row">
+        <button class="btn small" onclick="setMachineStatus('${m.id}','online')">Ustaw ONLINE</button>
+        <button class="btn small secondary" onclick="setMachineStatus('${m.id}','warning')">Ostrzeżenie</button>
+        <button class="btn small danger" onclick="setMachineStatus('${m.id}','danger')">AWARIA</button>
+      </div>
+      <div class="chart-container mt-2"><div class="chart-title">OEE — 12 ostatnich godzin</div><canvas id="mChart" height="120"></canvas></div>`;
+    root.classList.add('active');
+    setTimeout(()=>new Chart($('#mChart'),{type:'bar', data:{labels:[...Array(12).keys()].map(i=>`${i}h`),
+      datasets:[{label:'OEE', data:Array.from({length:12},()=>ri(60,98))}]},
+      options:{plugins:{legend:{labels:{color:'#cfe'}}}, scales:{x:{ticks:{color:'#9ab'}}, y:{ticks:{color:'#9ab'}}}}}), 30);
+  } else if(kind==='orderForm'){
+    title.textContent = 'Nowe zamówienie / zlecenie';
+    body.innerHTML = orderFormHTML();
+    root.classList.add('active');
+  } else if(kind==='ticketForm'){
+    title.textContent = 'Nowe zgłoszenie serwisowe';
+    body.innerHTML = ticketFormHTML();
+    root.classList.add('active');
+  }
+}
+function closeModal(){ $('#modalRoot').classList.remove('active'); }
+
+/* ========= Dashboard Rendering ========= */
+let chartThroughput, chartOEE, chartOrders, chartDowntime, chartForecast, chartRisk;
+function renderDashboard(){
+  // KPIs
+  $('#globalEfficiency').textContent = (state.kpis.efficiency+0.1).toFixed(1) + '%';
+  $('#activeOrders').textContent = state.orders.filter(o=>o.status!=='completed').length;
+  $('#systemUptime').textContent = '99.9%';
+  $('#efficiencyValue').textContent = state.kpis.efficiency.toFixed(1) + '%';
+  $('#machinesValue').textContent = `${state.kpis.activeMachines}/${state.kpis.totalMachines}`;
+  $('#tempValue').textContent = `${state.kpis.temp}°C`;
+  $('#productionValue').textContent = fmt(state.kpis.throughput);
+  $('#qualityValue').textContent = state.kpis.quality.toFixed(1) + '%';
+  $('#oeeValue').textContent = state.kpis.oee.toFixed(1) + '%';
+
+  // Charts
+  const labels24 = [...Array(24).keys()].map(h=>`${h}:00`);
+  chartThroughput?.destroy();
+  chartThroughput = new Chart($('#chartThroughput'), {
+    type:'line',
+    data:{ labels:labels24,
+      datasets:[
+        { label:'Wykonanie', data: state.history.throughput, borderWidth:2, tension:.35 },
+        { label:'Cel', data: state.history.target, borderWidth:2, borderDash:[6,6], tension:.35 },
+        { label:'Przestoje (min)', data: labels24.map(()=>ri(0,15)), borderWidth:2, tension:.35 }
+      ]},
+    options:{ responsive:true, plugins:{ legend:{labels:{color:'#cfe'}} }, scales:{ x:{ticks:{color:'#9ab'}}, y:{ticks:{color:'#9ab'}} } }
+  });
+
+  chartOEE?.destroy();
+  chartOEE = new Chart($('#chartOEE'), {
+    type:'bar',
+    data:{ labels:['Availability','Performance','Quality'],
+      datasets:[{ label:'% udziału', data:[ri(80,95), ri(80,95), state.kpis.quality.toFixed(1)], borderWidth:2 }]},
+    options:{ plugins:{legend:{labels:{color:'#cfe'}}}, scales:{ x:{ticks:{color:'#9ab'}}, y:{ticks:{color:'#9ab'}, max:100 } } }
+  });
+
+  chartOrders?.destroy();
+  const counts = { pending:0, processing:0, completed:0 };
+  state.orders.forEach(o=>counts[o.status] = (counts[o.status]||0)+1);
+  chartOrders = new Chart($('#chartOrders'), {
+    type:'doughnut',
+    data:{ labels:['Oczekujące','W realizacji','Zakończone'], datasets:[{ data:[counts.pending, counts.processing, counts.completed] }] },
+    options:{ plugins:{legend:{labels:{color:'#cfe'}}} }
+  });
+
+  chartDowntime?.destroy();
+  const dKeys = Object.keys(state.history.downtime), dVals = dKeys.map(k=>state.history.downtime[k]);
+  chartDowntime = new Chart($('#chartDowntime'), {
+    type:'bar',
+    data:{ labels:dKeys, datasets:[{ label:'Minuty', data:dVals }]},
+    options:{ plugins:{legend:{labels:{color:'#cfe'}}}, scales:{ x:{ticks:{color:'#9ab'}}, y:{ticks:{color:'#9ab'}} } }
+  });
+
+  // Alerts
+  renderAlerts();
+
+  // 3D
+  render3D();
+}
+
+function renderAlerts(){
+  const wrap = $('#alertsPanel');
+  wrap.innerHTML = '';
+  state.alerts.slice().reverse().forEach(a=>{
+    const div = document.createElement('div');
+    div.className = `alert-card alert-${a.type}`;
+    div.innerHTML = `
+      <div class="alert-header">
+        <div class="alert-title">${a.type==='critical'?'⛔':a.type==='warning'?'⚠️':a.type==='success'?'✅':'ℹ️'} ${a.title}</div>
+        <div class="alert-time">${a.time}</div>
+      </div>
+      <div class="alert-message">${a.msg}</div>`;
+    div.onclick = ()=>showToast('info', a.title, a.msg);
+    wrap.appendChild(div);
+  });
+}
+function addInfoAlert(){
+  state.alerts.push({ id:'AL-'+ri(100,999), type:'info', title:'Aktualizacja systemowa', time:'teraz', msg:'Zakończono synchronizację danych raportowych.' });
+  saveState(); renderAlerts(); showToast('success','Alert dodany','Informacja zapisana.');
+}
+
+/* ========= Production & Orders ========= */
+function orderFormHTML(){
+  return `
+    <div class="row">
+      <input class="input" id="frmId" placeholder="# Zlecenia (np. ZAM-1234)">
+      <input class="input" id="frmClient" placeholder="Klient / Komórka">
+      <input class="input" id="frmProduct" placeholder="Produkt / Operacja">
+      <input class="input" id="frmQty" type="number" min="1" placeholder="Ilość">
+    </div>
+    <div class="row mt-1">
+      <select class="input" id="frmSource">
+        <option>WWW</option><option>Telefon</option><option>E-mail</option><option>Partner</option>
+      </select>
+      <input class="input" id="frmValue" type="number" min="0" placeholder="Wartość [PLN]">
+      <select class="input" id="frmLine"><option>L1</option><option>L2</option><option>L3</option></select>
+      <input class="input" id="frmDue" type="date">
+      <select class="input" id="frmStatus"><option value="pending">Oczekujące</option><option value="processing">W realizacji</option><option value="completed">Zakończone</option></select>
+    </div>
+    <div class="row mt-2">
+      <button class="btn" onclick="submitOrder()">Zapisz</button>
+      <button class="btn secondary" onclick="closeModal()">Anuluj</button>
+    </div>`;
+}
+function openOrderModal(){ showDetailModal('orderForm'); }
+function submitOrder(){
+  const id=$('#frmId').value.trim()||'ZAM-'+ri(1000,9999);
+  const obj = {
+    id, client:$('#frmClient').value||'Klient demo', product:$('#frmProduct').value||'Produkt demo',
+    qty: +($('#frmQty').value||100), source:$('#frmSource').value, value:+($('#frmValue').value||0),
+    status: $('#frmStatus').value, due: $('#frmDue').value||new Date(Date.now()+5*864e5).toISOString().slice(0,10),
+    line: $('#frmLine').value
+  };
+  state.orders.unshift(obj); saveState(); closeModal(); showToast('success','Zapisano zamówienie', id);
+  renderProduction(); renderOrders(); renderDashboard();
+}
+function renderProduction(){
+  const q = ($('#prodSearch').value||'').toLowerCase();
+  const f = $('#prodFilter').value;
+  const tbody = $('#prodTbody'); tbody.innerHTML='';
+  const list = state.orders.filter(o=>(!f || o.status===f) && (o.id.toLowerCase().includes(q) || o.product.toLowerCase().includes(q)));
+  $('#prodPlanSummary').textContent = `Łącznie: ${list.length} zleceń`;
+  list.forEach(o=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="checkbox" data-scope="prod" data-id="${o.id}"></td>
+      <td>${o.id}</td>
+      <td>${o.product}</td>
+      <td>${fmt(o.qty)}</td>
+      <td>${o.line}</td>
+      <td>${o.due}</td>
+      <td><span class="order-status ${o.status}">${statusPL(o.status)}</span></td>
+      <td>
+        <button class="btn small" onclick="setOrderStatus('${o.id}','processing')">Start</button>
+        <button class="btn small secondary" onclick="setOrderStatus('${o.id}','completed')">Zakończ</button>
+        <button class="btn small danger" onclick="deleteOrder('${o.id}')">Usuń</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+function renderOrders(){
+  const q = ($('#crmSearch').value||'').toLowerCase();
+  const s = $('#crmStatus').value;
+  const src = $('#crmSource').value;
+  const tbody=$('#crmTbody'); tbody.innerHTML='';
+  const list = state.orders.filter(o=>(!s||o.status===s)&&(!src||o.source===src)&& (o.client.toLowerCase().includes(q)||o.id.toLowerCase().includes(q)));
+  $('#crmSummary').textContent = `Klienci: ${new Set(list.map(o=>o.client)).size} • Zamówienia: ${list.length}`;
+  list.forEach(o=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td>${o.id}</td>
+      <td>${o.client}</td>
+      <td>${o.product}</td>
+      <td>${fmt(o.qty)}</td>
+      <td>${o.source}</td>
+      <td>${fmt(o.value||0)} zł</td>
+      <td><span class="order-status ${o.status}">${statusPL(o.status)}</span></td>
+      <td>
+        <button class="btn small" onclick="setOrderStatus('${o.id}','processing')">Wykonuj</button>
+        <button class="btn small secondary" onclick="setOrderStatus('${o.id}','completed')">Zakończ</button>
+        <button class="btn small danger" onclick="deleteOrder('${o.id}')">Usuń</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+function statusPL(s){ return s==='pending'?'Oczekujące':s==='processing'?'W realizacji':'Zakończone'; }
+function setOrderStatus(id, status){
+  const o = state.orders.find(x=>x.id===id); if(!o) return;
+  o.status = status; saveState(); renderProduction(); renderOrders(); renderDashboard();
+  showToast('success','Status zmieniony', `${id} → ${statusPL(status)}`);
+}
+function deleteOrder(id){
+  state.orders = state.orders.filter(o=>o.id!==id); saveState(); renderProduction(); renderOrders(); renderDashboard();
+  showToast('warning','Usunięto', id);
+}
+function toggleAll(chk, scope){
+  $$(`input[type="checkbox"][data-scope="${scope}"]`).forEach(c=>c.checked=chk.checked);
+}
+function bulkStart(){
+  $$('input[data-scope="prod"]:checked').forEach(c=>setOrderStatus(c.dataset.id,'processing'));
+}
+function bulkCancel(){
+  $$('input[data-scope="prod"]:checked').forEach(c=>deleteOrder(c.dataset.id));
+}
+
+/* ========= Machines ========= */
+function renderMachines(){
+  const q = ($('#machineSearch').value||'').toLowerCase();
+  const f = $('#machineFilter').value;
+  const grid = $('#machineGrid'); grid.innerHTML='';
+  state.machines.filter(m=>(!f||m.status===f) && (m.id.toLowerCase().includes(q)||m.name.toLowerCase().includes(q)||m.model.toLowerCase().includes(q)))
+    .forEach(m=>{
+      const card = document.createElement('div');
+      card.className='machine-card'; card.tabIndex=0; card.setAttribute('role','button'); card.setAttribute('aria-label', `${m.name} status ${m.status}`);
+      const statusClass = m.status==='online'?'status-online':m.status==='warning'?'status-warning':m.status==='danger'?'status-danger':'status-offline';
+      card.innerHTML = `
+        <div class="machine-status ${statusClass}"></div>
+        <div class="machine-info">
+          <h4>${m.name} <span class="muted">(${m.model})</span></h4>
+          <p>Ostatni serwis: ${m.lastService}</p>
+        </div>
+        <div class="machine-metrics">
+          <div class="machine-metric"><div class="metric-value">${m.oee}%</div><div class="metric-label">OEE</div></div>
+          <div class="machine-metric"><div class="metric-value">${m.load}%</div><div class="metric-label">Obciąż.</div></div>
+        </div>
+        <div class="row">
+          <button class="btn small" onclick="event.stopPropagation(); setMachineStatus('${m.id}','online')">Online</button>
+          <button class="btn small secondary" onclick="event.stopPropagation(); setMachineStatus('${m.id}','warning')">Warn</button>
+          <button class="btn small danger" onclick="event.stopPropagation(); setMachineStatus('${m.id}','danger')">Awaria</button>
+        </div>`;
+      card.onclick = ()=>showDetailModal('machine', m);
+      grid.appendChild(card);
+    });
+}
+function setMachineStatus(id, status){
+  const m = state.machines.find(x=>x.id===id); if(!m) return;
+  m.status = status; if(status==='danger'){ m.oee = Math.max(40, m.oee-ri(5,15)); }
+  else if(status==='online'){ m.oee = Math.min(98, m.oee+ri(3,8)); }
+  saveState(); renderMachines(); renderDashboard(); showToast(status==='danger'?'error':status==='warning'?'warning':'success', `Maszyna ${id}`, `Status → ${status.toUpperCase()}`);
+  updateMachine3D(id, status);
+}
+
+/* ========= 3D Visualization ========= */
+let scene, camera, renderer, machineCubes = {};
+function render3D(){
+  const container = $('#visualization3D');
+  // Recreate renderer each time
+  container.innerHTML = '';
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, container.clientWidth/container.clientHeight, 0.1, 1000);
+  camera.position.set(12,12,16); camera.lookAt(0,0,0);
+  renderer = new THREE.WebGLRenderer({ antialias:true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(renderer.domElement);
+
+  const amb = new THREE.AmbientLight(0xffffff, 0.8); scene.add(amb);
+  const dir = new THREE.DirectionalLight(0xffffff, 0.6); dir.position.set(10,10,5); scene.add(dir);
+
+  const grid = new THREE.GridHelper(30, 30, 0x1f2d3a, 0x1f2d3a); grid.position.y = -0.51; scene.add(grid);
+
+  const geo = new THREE.BoxGeometry(1,0.6,1);
+  function colorFor(status){
+    return status==='online'?0x10b981 : status==='warning'?0xf59e0b : status==='danger'?0xef4444 : 0x94a3b8;
+  }
+  machineCubes = {};
+  state.machines.slice(0,24).forEach((m,i)=>{
+    const mat = new THREE.MeshStandardMaterial({ color: colorFor(m.status) });
+    const cube = new THREE.Mesh(geo, mat);
+    const x = (i%6)*2 - 5, z = Math.floor(i/6)*2 - 3;
+    cube.position.set(x, 0, z);
+    cube.userData.id = m.id;
+    scene.add(cube);
+    machineCubes[m.id] = cube;
+  });
+
+  // Raycast click
+  const raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2();
+  renderer.domElement.addEventListener('click', (e)=>{
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
+    mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
+    raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObjects(Object.values(machineCubes));
+    if(hits.length){ const id = hits[0].object.userData.id; const m = state.machines.find(x=>x.id===id); if(m) showDetailModal('machine', m); }
+  });
+
+  function animate(){
+    requestAnimationFrame(animate);
+    scene.rotation.y += 0.0008;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Resize
+  new ResizeObserver(()=>{ renderer.setSize(container.clientWidth, container.clientHeight); camera.aspect = container.clientWidth/container.clientHeight; camera.updateProjectionMatrix(); }).observe(container);
+}
+function updateMachine3D(id, status){
+  const cube = machineCubes[id]; if(!cube) return;
+  cube.material.color.set(status==='online'?0x10b981:status==='warning'?0xf59e0b:status==='danger'?0xef4444:0x94a3b8);
+}
+
+/* ========= Analytics (AI-ish) ========= */
+function renderAnalytics(){
+  chartForecast?.destroy();
+  chartRisk?.destroy();
+  const hrs = [...Array(48).keys()].map(i=>i+1);
+  const base = state.kpis.throughput;
+  const forecast = hrs.map(i => Math.round(base + Math.sin(i/5)*60 + (Math.random()*40-20)));
+  const risk = state.machines.slice(0,10).map(m=>({ id:m.id, risk: Math.min(95, Math.max(5, (m.temp-30)*1.3 + (100-m.oee)*0.6 + (m.status==='danger'?30:0))) }));
+  chartForecast = new Chart($('#chartForecast'), { type:'line', data:{ labels:hrs.map(h=>h+'h'), datasets:[{ label:'Prognoza j/h', data:forecast, tension:.35 }]}, options:{plugins:{legend:{labels:{color:'#cfe'}}}, scales:{x:{ticks:{color:'#9ab'}}, y:{ticks:{color:'#9ab'}}}} });
+  chartRisk = new Chart($('#chartRisk'), { type:'bar', data:{ labels:risk.map(r=>r.id), datasets:[{ label:'% ryzyka', data:risk.map(r=>r.risk) }]}, options:{plugins:{legend:{labels:{color:'#cfe'}}}, scales:{x:{ticks:{color:'#9ab'}}, y:{ticks:{color:'#9ab'}, max:100}}} });
+
+  refreshRecommendations();
+}
+function refreshRecommendations(){
+  const ul = $('#aiList'); ul.innerHTML='';
+  const recs = [
+    'Zwiększ takt Linii L2 o 3% w godzinach 10-14 (popyt + zamówienia pilne).',
+    'Przesuń 30% zasobów z M004 do M009 (obciążenie 92% vs 57%).',
+    'Wykonaj SMED na M011 — przewidywany spadek przezbrojeń o 18%.',
+    'Włącz kontrolę jakości co 50 sztuk na L1 (wzrost FPY o 0.3 p.p.).'
+  ];
+  recs.forEach(r=>{ const li=document.createElement('li'); li.textContent = '• ' + r; ul.appendChild(li); });
+}
+function simulateForecast(){
+  state.kpis.throughput += ri(-40,40);
+  saveState(); renderAnalytics(); showToast('success','Zaktualizowano prognozę','Dane zasymulowane.');
+}
+function applyAIOptim(){
+  // Heurystyka: popraw OEE kilku maszyn, zmniejsz downtime
+  state.machines.slice(0,5).forEach(m=>{ m.oee = Math.min(99, m.oee+ri(2,7)); if(m.status!=='danger') m.status='online'; });
+  Object.keys(state.history.downtime).forEach(k=> state.history.downtime[k] = Math.max(0, state.history.downtime[k]-ri(1,3)));
+  saveState(); renderDashboard(); renderMachines(); showToast('success','Wdrożono rekomendacje AI','OEE +, przestoje −');
+}
+
+/* ========= Maintenance ========= */
+function ticketFormHTML(){
+  return `
+    <div class="row">
+      <select class="input" id="tkMachine">${state.machines.slice(0,20).map(m=>`<option>${m.id}</option>`).join('')}</select>
+      <select class="input" id="tkType"><option>Awaria</option><option>Przegląd</option><option>Kalibracja</option><option>Modernizacja</option></select>
+      <select class="input" id="tkPrio"><option>Wysoki</option><option>Średni</option><option>Niski</option></select>
+    </div>
+    <div class="row mt-1">
+      <input class="input" id="tkDesc" placeholder="Opis problemu / zakres prac…" style="flex:1">
+    </div>
+    <div class="row mt-2">
+      <button class="btn" onclick="submitTicket()">Zapisz zgłoszenie</button>
+      <button class="btn secondary" onclick="closeModal()">Anuluj</button>
+    </div>`;
+}
+function openTicketModal(){ showDetailModal('ticketForm'); }
+function submitTicket(){
+  const t = { id:'MT-'+ri(3000,9999), machine:$('#tkMachine').value, type:$('#tkType').value, desc:$('#tkDesc').value||'Brak opisu', prio:$('#tkPrio').value, status:'Nowe' };
+  state.tickets.unshift(t); saveState(); closeModal(); showToast('success','Zgłoszenie dodane', t.id); renderMaintenance();
+}
+function renderMaintenance(){
+  const f=$('#mtFilter').value, s=$('#mtStatus').value, tb=$('#mtTbody'); tb.innerHTML='';
+  state.tickets.filter(t=>(!f||t.type===f)&&(!s||t.status===s)).forEach(t=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${t.id}</td><td>${t.machine}</td><td>${t.type}</td><td>${t.desc}</td><td>${t.prio}</td>
+      <td>${t.status}</td>
+      <td>
+        <button class="btn small" onclick="setTicketStatus('${t.id}','W toku')">W toku</button>
+        <button class="btn small secondary" onclick="setTicketStatus('${t.id}','Zamknięte')">Zamknij</button>
+        <button class="btn small danger" onclick="deleteTicket('${t.id}')">Usuń</button>
+      </td>`;
+    tb.appendChild(tr);
+  });
+
+  // Parts
+  const ptb = $('#partsTbody'); ptb.innerHTML='';
+  state.parts.forEach(p=>{
+    const warn = p.qty<=p.min ? 'danger-txt' : '';
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${p.code}</td><td>${p.name}</td><td class="${warn}">${p.qty}</td><td>${p.min}</td>
+      <td><button class="btn small" onclick="usePart('${p.code}')">Zużyj</button>
+      <button class="btn small secondary" onclick="addPart('${p.code}')">+1</button></td>`;
+    ptb.appendChild(tr);
+  });
+}
+function setTicketStatus(id, status){ const t = state.tickets.find(x=>x.id===id); if(!t) return; t.status=status; saveState(); renderMaintenance(); showToast('success','Status biletu zmieniony', `${id} → ${status}`); }
+function deleteTicket(id){ state.tickets = state.tickets.filter(x=>x.id!==id); saveState(); renderMaintenance(); showToast('warning','Zgłoszenie usunięte', id); }
+function usePart(code){ const p=state.parts.find(x=>x.code===code); if(!p) return; p.qty=Math.max(0,p.qty-1); saveState(); renderMaintenance(); }
+function addPart(code){ const p=state.parts.find(x=>x.code===code); if(!p) return; p.qty+=1; saveState(); renderMaintenance(); }
+function replenishParts(){ state.parts.forEach(p=>{ if(p.qty<p.min) p.qty=p.min+ri(3,10); }); saveState(); renderMaintenance(); showToast('success','Uzupełniono stany','Części dostępne.'); }
+
+/* ========= Reports ========= */
+function generatePreview(){
+  const from = $('#repFrom').value, to = $('#repTo').value;
+  const within = o=>{
+    if(!from && !to) return true;
+    const d = new Date(o.due).getTime();
+    const a = from? new Date(from).getTime() : -Infinity;
+    const b = to? new Date(to).getTime() : Infinity;
+    return d>=a && d<=b;
+  };
+  const list = state.orders.filter(within);
+  $('#reportPreview').innerHTML = `
+    <p><b>Zakres:</b> ${from||'—'} → ${to||'—'} • <b>Zamówień:</b> ${list.length}</p>
+    <div class="divider"></div>
+    <table class="orders-table"><thead><tr><th>#</th><th>Klient</th><th>Produkt</th><th>Ilość</th><th>Wartość</th><th>Status</th><th>Termin</th></tr></thead>
+    <tbody>
+      ${list.slice(0,30).map(o=>`<tr><td>${o.id}</td><td>${o.client}</td><td>${o.product}</td><td>${fmt(o.qty)}</td><td>${fmt(o.value||0)} zł</td><td>${statusPL(o.status)}</td><td>${o.due}</td></tr>`).join('')}
+    </tbody></table>
+    <p class="muted mt-1">Pokażono maks. 30 pozycji w podglądzie.</p>`;
+}
+function exportCSV(){
+  const rows = [['id','client','product','qty','source','value','status','due','line']];
+  state.orders.forEach(o=>rows.push([o.id,o.client,o.product,o.qty,o.source,o.value||0,o.status,o.due,o.line]));
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  download('raport_orders.csv', 'text/csv', csv);
+  showToast('success','Wyeksportowano CSV','raport_orders.csv');
+}
+function exportJSON(){
+  download('raport_orders.json','application/json', JSON.stringify(state.orders,null,2));
+  showToast('success','Wyeksportowano JSON','raport_orders.json');
+}
+function download(name, mime, data){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data],{type:mime}));
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+function resetDemo(){
+  localStorage.removeItem(STORAGE_KEY);
+  state = defaultState(); saveState();
+  renderDashboard(); renderProduction(); renderOrders(); renderMachines(); renderMaintenance(); renderAnalytics();
+  showToast('warning','Zresetowano demo','Dane przywrócone do wartości początkowych.');
+}
+
+/* ========= Controls ========= */
+const controls = {
+  start(){ state.settings.running=true; saveState(); showToast('success','Start linii','Produkcja wznowiona.'); },
+  pause(){ state.settings.running=false; saveState(); showToast('warning','Pauza','Linie wstrzymane.'); },
+  eStop(){ state.settings.running=false; state.machines.forEach(m=>m.status='offline'); saveState(); renderMachines(); renderDashboard(); showToast('error','AWARYJNE STOP','Wszystkie linie zatrzymane.'); },
+  optimize(){ applyAIOptim(); },
+  simulateFailure(){
+    const m = pick(state.machines); m.status='danger'; m.temp += ri(5,12); m.oee = Math.max(40, m.oee-ri(5,12));
+    state.alerts.push({ id:'AL-'+ri(100,999), type:'critical', title:'Nagła awaria', time:'teraz', msg:`${m.id} (${m.model}) — drgania i wzrost temperatury.` });
+    saveState(); renderDashboard(); renderMachines(); showToast('error','Symulacja awarii', `${m.id} w stanie AWARIA`);
+    updateMachine3D(m.id, 'danger');
+  }
+};
+
+/* ========= Live Engine ========= */
+let tickTimer=null, saveDebounce=0;
+
+function liveTick(){
+  // 1) KPI drift (lekka symulacja)
+  const running = !!state.settings.running;
+  const base = state.kpis.throughput;
+  const activeCnt = state.machines.filter(m=>m.status!=='offline').length;
+  state.kpis.activeMachines = activeCnt;
+  state.kpis.totalMachines = state.machines.length;
+
+  // Przesuń szereg 24h
+  const nextVal = Math.max(600, Math.round(
+    base + (running? ri(-40,60) : ri(-120,10)) + Math.sin(Date.now()/9e5)*50
+  ));
+  state.history.throughput.shift();
+  state.history.throughput.push(nextVal);
+
+  // Aktualizuj kilka wskaźników
+  const dangerCount = state.machines.filter(m=>m.status==='danger').length;
+  const warnCount   = state.machines.filter(m=>m.status==='warning').length;
+
+  const perfAdj = running ? 0.05 : -0.08;
+  const statusAdj = -dangerCount*0.25 - warnCount*0.06;
+  state.kpis.efficiency = Math.max(60, Math.min(99.9, state.kpis.efficiency + perfAdj + statusAdj + (Math.random()*0.3-0.15)));
+  state.kpis.temp       = Math.max(24, Math.min(48, state.kpis.temp + (running? 0.02 : -0.04) + (Math.random()*0.2-0.1)));
+  state.kpis.quality    = Math.max(95, Math.min(99.9, state.kpis.quality + (Math.random()*0.06-0.03)));
+  state.kpis.oee        = Math.max(65, Math.min(98, state.kpis.oee + (running? 0.04 : -0.05) - dangerCount*0.12 + (Math.random()*0.2-0.1)));
+
+  // Losowa fluktuacja maszyn
+  const m = pick(state.machines);
+  if(m){
+    m.load = Math.max(10, Math.min(100, m.load + (running? ri(-3,4) : ri(-6,2))));
+    m.temp = Math.max(20, Math.min(95, m.temp + (running? ri(-1,2) : ri(-3,1))));
+    if(m.status==='online' && m.temp>75 && Math.random() < 0.15){
+      m.status='warning';
+      state.alerts.push({ id:'AL-'+ri(1000,9999), type:'warning', title:'Wysoka temperatura', time:'teraz', msg:`${m.id}: ${m.temp}°C — zwiększono chłodzenie.` });
+      updateMachine3D(m.id, 'warning');
+    }
+  }
+
+  // Czasem automatyczna informacja
+  if(Math.random() < 0.05){
+    state.alerts.push({ id:'AL-'+ri(1000,9999), type:'info', title:'Synchronizacja', time:'teraz', msg:'Dane z linii L3 zsynchronizowane.' });
+  }
+
+  // 2) Odśwież UI lekko — bez przebudowy całych wykresów
+  $('#globalEfficiency') && ($('#globalEfficiency').textContent = state.kpis.efficiency.toFixed(1) + '%');
+  $('#activeOrders') && ($('#activeOrders').textContent = state.orders.filter(o=>o.status!=='completed').length);
+  $('#efficiencyValue') && ($('#efficiencyValue').textContent = state.kpis.efficiency.toFixed(1) + '%');
+  $('#machinesValue') && ($('#machinesValue').textContent = `${state.kpis.activeMachines}/${state.kpis.totalMachines}`);
+  $('#tempValue') && ($('#tempValue').textContent = `${state.kpis.temp.toFixed(0)}°C`);
+  $('#productionValue') && ($('#productionValue').textContent = fmt(state.kpis.throughput));
+  $('#qualityValue') && ($('#qualityValue').textContent = state.kpis.quality.toFixed(1) + '%');
+  $('#oeeValue') && ($('#oeeValue').textContent = state.kpis.oee.toFixed(1) + '%');
+
+  if(chartThroughput){
+    chartThroughput.data.datasets[0].data = state.history.throughput.slice();
+    chartThroughput.update('none');
+  }
+
+  // Odśwież listę alertów (z limitem, by nie puchło)
+  if(state.alerts.length > 60){ state.alerts = state.alerts.slice(-60); }
+  renderAlerts();
+
+  // 3) Okazjonalny save
+  if(++saveDebounce % 3 === 0) saveState();
+}
+
+/* ========= Keyboard Shortcuts ========= */
+document.addEventListener('keydown', (e)=>{
+  const tag = (e.target && e.target.tagName || '').toLowerCase();
+  if(tag==='input' || tag==='textarea' || e.ctrlKey || e.metaKey || e.altKey) return;
+
+  if(e.key.toLowerCase()==='s'){ controls.start(); }
+  else if(e.key.toLowerCase()==='p'){ controls.pause(); }
+  else if(e.key.toLowerCase()==='e'){ controls.eStop(); }
+  else if(e.key.toLowerCase()==='o'){ controls.optimize(); }
+  else if(e.key.toLowerCase()==='f'){ controls.simulateFailure(); }
+  else if(e.key==='Escape'){ closeModal(); }
+});
+
+/* ========= Helpers: Dates ========= */
+function setDefaultReportDates(){
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  const first = `${yyyy}-${mm}-01`;
+  const now = `${yyyy}-${mm}-${dd}`;
+  const from = $('#repFrom'), to = $('#repTo');
+  if(from && !from.value) from.value = first;
+  if(to && !to.value) to.value = now;
+}
+
+/* ========= Init ========= */
+function initDemo(){
+  // Inicjalny render
+  renderDashboard();
+  renderProduction();
+  renderOrders();
+  renderMachines();
+  renderMaintenance();
+  renderAnalytics();
+  setDefaultReportDates();
+
+  // Schowaj ekran ładowania
+  setTimeout(()=> $('#loadingScreen').classList.add('hidden'), 450);
+
+  // Cykl życia demo
+  if(tickTimer) clearInterval(tickTimer);
+  tickTimer = setInterval(liveTick, 2000);
+
+  // Wstrzymaj tło, gdy karta ukryta
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){ clearInterval(tickTimer); tickTimer=null; }
+    else if(!tickTimer){ tickTimer=setInterval(liveTick, 2000); }
+  });
+}
+
+window.addEventListener('load', initDemo);
+</script>
+</body>
+</html>
